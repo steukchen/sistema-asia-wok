@@ -13,13 +13,15 @@ sistema web de gestión de comandas para el restaurante asia wok
    python -m venv venv
    pip install -r requeriments.txt
 
-   ejecutar: 
+   ejecutar:
+  ###bash 
+  cd backend
   venv\Scripts\activate
   uvicorn main:app --reload
 
 ### **Frontend (Next.js + TypeScript)
 2. **Instala las dependencias**
-  ```bash
+  ###bash
   cd frontend
   npm install
 
