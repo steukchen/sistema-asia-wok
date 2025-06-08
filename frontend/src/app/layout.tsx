@@ -4,7 +4,7 @@ import './globals.css';
 
 
 export const metadata: Metadata = {
-  title: 'Asia Wok - Restaurante',
+  title: 'Sistema ASIA WOK',
 }
 
 export default function RootLayout({
