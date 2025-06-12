@@ -1,6 +1,7 @@
 import { AuthProvider } from './providers/providers';
 import type { Metadata } from 'next';
 import './globals.css';
+import { montserrat, lusitana } from '../components/font'; 
 
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>
+      <body className={`${montserrat.className} antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
