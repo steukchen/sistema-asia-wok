@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from .database import Base
 from sqlalchemy.orm import relationship
 
@@ -12,4 +12,6 @@ class User(Base):
     role = Column(String)  # 'admin', 'mesonero', 'cajero' o 'cocina'
     name = Column(String)
     pedidos = relationship("Pedido", back_populates="usuario")
-    is_active = Column(bool, defaut=True)
+    is_active = Column(Boolean, default=True)
+
+    pedidos = relationship("Pedido", back_populates="usuario")

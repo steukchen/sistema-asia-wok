@@ -21,4 +21,4 @@ class Pedido(Base):
     fecha_creacion = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     usuario = relationship("User", back_populates="pedidos")
-    platos = relationship("Pedido", secondary=pedido_plato, back_populates="platos")
+    platos = relationship("Plato", secondary=pedido_plato, back_populates="pedidos")
