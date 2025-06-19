@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 class UserBase(BaseModel):
@@ -7,7 +7,9 @@ class UserBase(BaseModel):
 
 # Esquema para crear un nuevo usuario (incluye la contraseña sin hashear)
 class UserCreate(UserBase):
-    password: str 
+    password: str = Field( min_length=8,
+        example="MiContrasenaSegura123*",
+        json_schema_extra={"format": "password"})
 
 # Esquema para actualizar un usuario (campos opcionales)
 class UserUpdate(BaseModel):
@@ -26,4 +28,6 @@ class UserOut(UserBase):
 # Esquema para la autenticación de usuario (login)
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field( min_length=8,
+        example="MiContrasenaSegura123*",
+        json_schema_extra={"format": "password"})
