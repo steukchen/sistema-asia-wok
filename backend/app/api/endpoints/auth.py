@@ -1,26 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from app.schemas.tokens import Token
-from app.models.user import User
 from app.core.security import create_access_token, verify_password
 from app.core.config import settings
-from app.models.db_utils import get_db
+from app.api.dependencies import get_db, get_current_user
+from app.models.user import User as DBUser
+from app.schemas.tokens import Token
+from app.schemas.user import UserOut
 
 router = APIRouter()
 
-@router.post("/login", response_model=Token)
-async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+@router.post("/login", response_model=Token, summary="Iniciar sesión y obtener token de acceso")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
-    # Buscar usuario en la base de datos
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = db.query(DBUser).filter(DBUser.email == form_data.username).first()
     
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -31,3 +32,10 @@ async def login(
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me", response_model=UserOut, summary="Obtener información del usuario autenticado")
+
+async def read_users_me(
+    current_user: Annotated[DBUser, Depends(get_current_user)]
+):
+    return current_user
