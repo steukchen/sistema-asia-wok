@@ -10,7 +10,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(String)  # 'admin', 'mesonero', 'cajero' o 'cocina'
-    name = Column(String)
+    nombre = Column(String)
     pedidos = relationship("Pedido", back_populates="usuario")
     is_active = Column(Boolean, default=True)
 

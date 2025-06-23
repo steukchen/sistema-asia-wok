@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '../../providers/providers';
+import { useAuth } from '../../../providers/providers';
 
 export default function CocinaPage() {
     const { user, logout } = useAuth();
@@ -8,7 +8,7 @@ export default function CocinaPage() {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold">Panel Pedidos Cocina</h1>
-            <p>Bienvenido, {user?.name} (Rol: {user?.role})</p>
+            <p>Bienvenido, {user?.nombre} (Rol: {user?.role})</p>
             <p className="mt-2">Confirma cuando los pedidos estén listos!!</p>
 
             <button 

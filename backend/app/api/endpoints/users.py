@@ -53,7 +53,7 @@ async def create_user(
     # Creación del usuario
     db_user = DBUser(
         email=user_in.email,
-        name=user_in.name,
+        nombre=user_in.nombre,
         hashed_password=get_password_hash(user_in.password),
         role=user_in.role,
         is_active=user_in.is_active
