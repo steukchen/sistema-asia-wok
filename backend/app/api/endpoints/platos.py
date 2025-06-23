@@ -27,7 +27,7 @@ async def create_plato(
     db: Session = Depends(get_db)
 ):
     # Validación de nombre único
-    if db.query(DBPlato).filter(DBPlato.name == plato_in.name).first():
+    if db.query(DBPlato).filter(DBPlato.nombre == plato_in.nombre).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ya existe un plato con este nombre."
@@ -48,7 +48,7 @@ async def create_plato(
         )
     
     db_plato = DBPlato(
-        name=plato_in.name,
+        nombre=plato_in.nombre,
         descripcion=plato_in.descripcion,
         precio=plato_in.precio,
         categoria=plato_in.categoria,
@@ -135,8 +135,8 @@ async def update_plato(
     update_data = plato_in.model_dump(exclude_unset=True)
     
     # Validación de nombre único si se está actualizando
-    if 'name' in update_data and update_data['name'] != plato.name:
-        if db.query(DBPlato).filter(DBPlato.name == update_data['name']).first():
+    if 'nombre' in update_data and update_data['nombre'] != plato.nombre:
+        if db.query(DBPlato).filter(DBPlato.nombre == update_data['nombre']).first():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ya existe un plato con este nombre."

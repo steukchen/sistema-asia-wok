@@ -38,4 +38,4 @@ class PedidoOut(BaseModel):
         json_encoders = {
             datetime: lambda v: v.strftime("%Y-%m-%d")
         }
-        allow_population_by_field_name = True
+        validate_by_name = True

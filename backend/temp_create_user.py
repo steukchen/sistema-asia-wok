@@ -21,7 +21,7 @@ try:
         email="admin@asiawok.com",
         hashed_password=hashed_password_admin,
         role="admin",
-        name="Admin General",
+        nombre="Admin General",
         is_active=True
     )
     
@@ -30,7 +30,7 @@ try:
         email="mesonero@asiawok.com",
         hashed_password=get_password_hash("MesoneroPass123"),
         role="mesonero",
-        name="Juan Mesonero",
+        nombre="Juan Mesonero",
         is_active=True
     )
 
@@ -39,7 +39,7 @@ try:
         email="cajero@asiawok.com",
         hashed_password=get_password_hash("CajeroPass123"),
         role="cajero",
-        name="Maria Cajera",
+        nombre="Maria Cajera",
         is_active=True
     )
     
@@ -48,7 +48,7 @@ try:
         email="cocina@asiawok.com",
         hashed_password=get_password_hash("CocinaPass123"),
         role="cocina",
-        name="Pedro Cocinero",
+        nombre="Pedro Cocinero",
         is_active=True
     )
 

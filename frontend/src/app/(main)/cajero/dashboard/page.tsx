@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '../../providers/providers';
+import { useAuth } from '../../../providers/providers';
 
 export default function CajeroPage() {
     const { user, logout } = useAuth();
@@ -8,7 +8,7 @@ export default function CajeroPage() {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold">Panel Caja</h1>
-            <p>Bienvenido, {user?.name} (Rol: {user?.role})</p>
+            <p>Bienvenido, {user?.nombre} (Rol: {user?.role})</p>
             <p className="mt-2">Aquí puedes gestionar los pedidos, imprimir la cuenta y facturar</p>
 
             <button 
