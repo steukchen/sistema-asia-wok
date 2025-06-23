@@ -20,7 +20,7 @@ class PlatoUpdate(BaseModel):
 # Esquema para la salida de datos de un plato
 class PlatoOut(BaseModel):
     id: int
-    nombre: str
+    name: str
     descripcion: Optional[str] = None
     precio: float
     categoria: str # <--- AÑADIR ESTE CAMPO
