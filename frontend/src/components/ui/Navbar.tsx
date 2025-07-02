@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { lusitana } from '../../components/font';
+import Button from '../ui/button'
 
 export default function Navbar() {
     const { user, logout } = useAuth();
@@ -39,13 +40,13 @@ export default function Navbar() {
 
                 {/* Sección derecha: Botón de Cerrar Sesión */}
                 <div className="flex items-center">
-                    <button
+                    <Button
                         onClick={logout}
-                        className="bg-[#FB3D01] hover:bg-[#E03A00] text-white font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FB3D01] focus:ring-offset-2 focus:ring-offset-gray-900"
+                        className="bg-[#E03A00]/100 hover:bg-[#E03A00]/70 text-white font-semibold py-2 px-4 rounded-md"
                         aria-label="Cerrar Sesión"
                     >
                         Cerrar Sesión
-                    </button>
+                    </Button>
                 </div>
             </div>
         </nav>
