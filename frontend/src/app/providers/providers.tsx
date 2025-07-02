@@ -1,19 +1,9 @@
 'use client';
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 interface User {
     id: number;
-interface User {
-    id: number;
     email: string;
-    nombre: string;
-    role: string;
-    is_active: boolean;
-}
-interface AuthContextType {
     nombre: string;
     role: string;
     is_active: boolean;
@@ -23,25 +13,15 @@ interface AuthContextType {
     token: string | null;
     isLoading: boolean;
     isAuthenticated: boolean;
-    token: string | null;
-    isLoading: boolean;
-    isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
 }
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const API_BASE_URL = 'http://localhost:8000';
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const API_BASE_URL = 'http://localhost:8000';
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -163,18 +143,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return (
         <AuthContext.Provider value={contextValue}>
-        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
-};
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth debe ser utilizado dentro de un AuthProvider');
-    }
-    return context;
-};
 };
 export const useAuth = () => {
     const context = useContext(AuthContext);
