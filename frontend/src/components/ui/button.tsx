@@ -19,7 +19,7 @@ const Button: React.FC<ButtonProps> = ({
         w-full py-3 px-4 rounded-lg transition-all shadow-xl
         bg-black/80 text-white hover:bg-[#FB3D01]
         focus:outline-none focus:ring-2 focus:ring-[#FB3D01] focus:ring-offset-2
-        ${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}
+        ${isLoading ? 'opacity-100 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
             `}
             {...props}
