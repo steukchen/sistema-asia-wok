@@ -28,7 +28,7 @@ try:
     db.refresh(plato1)
     db.refresh(plato2)
     print(f"Plato creado: {plato1.nombre} con ID {plato1.id}")
-    print(f"Plato creado: {plato2.nombre} con ID {plato2.id}"
+    print(f"Plato creado: {plato2.nombre} con ID {plato2.id}")
 except Exception as e:
     db.rollback()
     print(f"Error al crear plato: {e}")
