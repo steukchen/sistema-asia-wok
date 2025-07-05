@@ -19,7 +19,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeSection, onSectionCha
 
     return (
         // Sidebar responsivo: oculto en móviles, se muestra en pantallas medianas y grandes
-        <aside className="w-full md:w-64 bg-gray-800 text-white flex-shrink-0 p-4 rounded-lg shadow-xl md:mr-6 mb-6 md:mb-0">
+        <aside className="w-full md:w-64 bg-gray-800 text-white flex-shrink-1 py-8 px-5 rounded-lg shadow-xl md:mr-6 mb-6 md:mb-0">
             <h2 className={`${lusitana.className} text-2xl font-bold text-white mb-6 hidden md:block text-center`}>
                 Admin Menú
             </h2>

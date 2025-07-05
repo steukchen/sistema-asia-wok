@@ -6,7 +6,7 @@ class Plato(Base):
     __tablename__ = "platos"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
+    nombre = Column(String, index=True, nullable=False)
     descripcion = Column(String)
     precio = Column(Float, nullable=False)
     categoria = Column(String, nullable=False)  # Ej: 'entrada', 'principal', 'postre'

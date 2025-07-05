@@ -58,7 +58,7 @@ export default function MainLayout({
     return (
         <div className="flex flex-col min-h-screen bg-gray-50">
             <Navbar />
-            <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            <main className="flex-1 p-4 sm:p-6 ">
                 {children} {/* Contenido específico de cada dashboard (admin, cajero, etc.) */}
             </main>
             <Footer />
