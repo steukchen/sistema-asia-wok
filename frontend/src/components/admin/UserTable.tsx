@@ -11,12 +11,12 @@ interface User {
 }
 
 interface UserTableProps {
-    users: User[];
+    items: User[];
     onEdit: (user: User) => void;
     onDelete: (userId: number) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
+const UserTable: React.FC<UserTableProps> = ({ items: users, onEdit, onDelete }) => {
     return (
         // Contenedor responsivo para la tabla
         <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
@@ -59,7 +59,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
                                 {user.role}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                <span className={`px-2 inline-flex text-xs leading-6 font-semibold rounded-full ${user.is_active ? 'bg-green-300 text-green-800' : 'bg-red-300 text-red-800'}`}>
                                     {user.is_active ? 'Sí' : 'No'}
                                 </span>
                             </td>

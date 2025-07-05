@@ -13,7 +13,7 @@ export default function Navbar() {
     if (!user) return null;
 
     return (
-        <nav className="bg-gray-900 text-white p-3 shadow-lg sticky top-0 z-50 opacity-95">
+        <nav className="bg-gray-900 text-white p-3 shadow-lg  top-0 z-50 opacity-100">
             <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 px-4">
                 {/* Sección izquierda: Logo y Título */}
                 <div className="flex items-center space-x-3">
@@ -42,7 +42,7 @@ export default function Navbar() {
                 <div className="flex items-center">
                     <Button
                         onClick={logout}
-                        className="bg-[#E03A00]/100 hover:bg-[#E03A00]/70 text-white font-semibold py-2 px-4 rounded-md"
+                        className="bg-black/60 hover:bg-[#E03A00]/70 text-white font-semibold py-2 px-4 rounded-xl"
                         aria-label="Cerrar Sesión"
                     >
                         Cerrar Sesión
