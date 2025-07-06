@@ -1,22 +1,31 @@
+// frontend/src/app/(main)/cocina/dashboard/page.tsx
 'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../../../app/providers/providers';
 
-import { useAuth } from '../../../providers/providers';
-import Button from '../../../../components/ui/button'
+export default function CocinaDashboardPage() {
+    const { user, isLoading } = useAuth();
+    const router = useRouter();
 
-export default function CocinaPage() {
-    const { user, logout } = useAuth();
+    useEffect(() => {
+        if (!isLoading) {
+            if (user && user.role === 'cocina') {
+                // Redirige al dashboard principal si es cocina
+                router.replace('/admin/dashboard'); 
+            } else if (user) {
+                // Si está logueado pero no es cocina, redirige a no autorizado
+                router.replace('/unauthorized');
+            } else {
+                // Si no está logueado, redirige al login
+                router.replace('/login');
+            }
+        }
+    }, [user, isLoading, router]);
 
     return (
-        <div className="flex flex-col text-center items-center sm:flex-col bg-gray-50 p-4 sm:p-6 lg:p-6 rounded-lg p-4 text-black">
-            <h1 className="text-2xl font-bold">Panel Pedidos Cocina</h1>
-            <p>Bienvenido, {user?.nombre} (Rol: {user?.role})</p>
-            <p className="mt-2">Confirma cuando los pedidos estén listos!!</p>
-
-            <Button
-                onClick={logout}
-                className='mt-5 sm:w-10 md:w-20 text-center bg-red-600 hover:bg-red-400'>
-                Salir
-            </Button>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <p className="text-gray-700 text-lg sm:text-xl animate-pulse">Redirigiendo al dashboard...</p>
         </div>
     );
 }

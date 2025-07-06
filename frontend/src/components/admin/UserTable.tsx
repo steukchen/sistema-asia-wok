@@ -1,16 +1,9 @@
 'use client';
 import React from 'react';
 import Button from '../ui/button';
+import { User } from '../../types'
 
-interface User {
-    id: number;
-    email: string;
-    nombre: string;
-    role: string;
-    is_active: boolean;
-}
-
-interface UserTableProps {
+export interface UserTableProps {
     items: User[];
     onEdit: (user: User) => void;
     onDelete: (userId: number) => void;

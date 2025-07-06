@@ -3,25 +3,20 @@ import React from 'react';
 import Button from '../ui/button';
 import Modal from '../ui/modal';
 import { lusitana } from '../font';
+import { User, UserFormData, Plato, DishFormData } from '../../types'; 
 
-/**
- * Props para el componente AdminSectionLayout.
- * @template T El tipo de dato de la entidad (ej. User, Plato).
- * @template FormData El tipo de dato del formulario (ej. UserFormData, DishFormData).
- */
-
-interface AdminSectionLayoutProps<T, FormData> {
-    title: string; // Título de la sección (ej. "Gestión de Usuarios")
-    createButtonText: string; // Texto del botón para crear nuevo (ej. "Crear Nuevo Usuario")
-    loading: boolean; // Estado de carga
-    error: string | null; // Mensaje de error
-    showForm: boolean; // Si el formulario está visible
-    editingItem: T | null; // El ítem que se está editando (o null para creación)
-    items: T[]; // La lista de ítems a mostrar en la tabla
+interface AdminSectionLayoutProps<T extends { id: number }, FormData> {
+    title: string;
+    createButtonText: string;
+    loading: boolean;
+    error: string | null;
+    showForm: boolean;
+    editingItem: T | null;
+    items: T[];
     
     // Componentes para la tabla y el formulario
     TableComponent: React.ComponentType<{
-        items: T[]; // El componente de tabla ahora siempre espera una prop 'items'
+        items: T[];
         onEdit: (item: T) => void;
         onDelete: (itemId: number) => void;
     }>;
@@ -40,17 +35,7 @@ interface AdminSectionLayoutProps<T, FormData> {
     onCreateNew: () => void;
 }
 
-/**
- * Layout genérico para las secciones de administración (Usuarios, Platos, etc.).
- * Proporciona una estructura común con título, botón de creación, mensajes de estado
- * y un modal para formularios de creación/edición.
- *
- * @template T El tipo de dato de la entidad.
- * @template FormData El tipo de dato del formulario.
- */
-
-
-const AdminSectionLayout = <T, FormData>({
+const AdminSectionLayout = <T extends { id: number }, FormData>({ 
     title,
     createButtonText,
     loading,

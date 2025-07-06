@@ -8,17 +8,6 @@ interface CrudItem {
     is_active: boolean;
 }
 
-/**
- * Hook personalizado para gestionar operaciones CRUD (Crear, Leer, Actualizar, Eliminar)
- * @template T El tipo de dato de la entidad (ej. User, Plato). Debe extender CrudItem.
- * @template CreateData El tipo de dato para la creación (ej. UserCreate, PlatoCreate).
- * @template UpdateData El tipo de dato para la actualización (ej. UserUpdate, PlatoUpdate).
- *
- * @param {string} endpointUrl La URL base del endpoint de la API (ej. '/users', '/platos').
- * @returns Un objeto con el estado y las funciones para las operaciones CRUD.
- */
-
-
 export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
     endpointUrl: string
 ) => {
