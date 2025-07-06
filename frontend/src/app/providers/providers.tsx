@@ -1,6 +1,8 @@
+// frontend/src/app/providers/providers.tsx
 'use client';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+
 interface User {
     id: number;
     email: string;
@@ -8,6 +10,7 @@ interface User {
     role: string;
     is_active: boolean;
 }
+
 interface AuthContextType {
     user: User | null;
     token: string | null;
@@ -34,7 +37,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(newUser);
         setIsAuthenticated(true);
     };
-
 
     const clearAuthData = () => {
         localStorage.removeItem('accessToken');
@@ -80,28 +82,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const userData: User = await userResponse.json();
 
             saveAuthData(data.access_token, userData);
-            // Lógica de redirección basada en el rol del usuario
-            switch (userData.role) {
-                case 'admin':
-                    router.push('/admin/dashboard');
-                    break;
-                case 'cajero':
-                    router.push('/cajero/dashboard');
-                    break;
-                case 'mesonero':
-                    router.push('/mesonero/dashboard');
-                    break;
-                case 'cocina':
-                    router.push('/cocina/dashboard');
-                    break;
-                default:
-                    router.push('/unauthorized');
-                    break;
-            }
+            
+            router.push('/admin/dashboard'); 
 
         } catch (err: any) {
             console.error('Error de login en AuthProvider:', err);
-
             throw err;
         } finally {
             setIsLoading(false);
@@ -147,6 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         </AuthContext.Provider>
     );
 };
+
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

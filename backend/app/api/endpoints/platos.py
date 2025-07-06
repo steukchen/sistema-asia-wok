@@ -165,7 +165,7 @@ async def update_plato(
     responses={404: {"description": "Plato no encontrado"}}
 )
 async def delete_plato(
-    current_admin_user: Annotated[DBUser, Depends(get_current_admin_user)],
+    current_user_with_roles: Annotated[DBUser, Depends(has_roles(["admin", "cajero"]))],
     plato_id: int,
     db: Session = Depends(get_db)
 ):

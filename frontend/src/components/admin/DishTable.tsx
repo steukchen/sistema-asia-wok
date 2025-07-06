@@ -1,15 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Button from '../ui/button';
-
-interface Plato {
-    id: number;
-    nombre: string;
-    descripcion: string;
-    precio: number;
-    categoria: string;
-    is_active: boolean;
-}
+import {Plato} from '../../types'
 
 interface DishTableProps {
     items: Plato[];

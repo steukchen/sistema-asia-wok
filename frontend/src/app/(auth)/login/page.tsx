@@ -9,11 +9,11 @@ export default function LoginPage() {
     const { login, isLoading } = useAuth();
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-200 p-4 cursor-default font-inter">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 cursor-default font-inter">
 
             {/* Sección del Logo y Título */}
             <div className="flex flex-col items-center mb-3">
-                <div className="w-40 h-40 relative rounded-full overflow-hidden border-2 border-[#FB3D01] shadow-lg">
+                <div className="w-40 h-40 relative rounded-full overflow-hidden border-2 border-gray/70 shadow-lg">
                     <Image
                         src="/asia-wok-logo.jpg"
                         alt="Asia Wok Logo"
