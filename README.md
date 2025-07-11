@@ -1,28 +1,29 @@
-# sistema-asia-wok
-sistema web de gestión de comandas para el restaurante asia wok
-  /backend   # FastAPI
-  /frontend  # Next.js
+# Sistema-asia-wok
 
-
-# Instalación
+## Instalación
 
 ### **Backend (FastAPI + Python)**
-1. **Entorno Virtual**:
-   ```bash
-   cd backend
-   python -m venv venv
-   pip install -r requeriments.txt
 
-   ejecutar:
-  ###bash 
-  cd backend
-  venv\Scripts\activate
-  uvicorn main:app --reload
+1. Ir a: <https://github.com/steukchen/Asia-Wok-API-Rest> y seguir las intrucciones de instalacion.
 
-### **Frontend (Next.js + TypeScript)
-2. **Instala las dependencias**
-  ###bash
-  cd frontend
-  npm install
+### **Frontend (Next.js + TypeScript)**
 
-  ejecutar: npm run dev
+1. Configurar el archivo .env siguiendo la estructura del .env.example para utilizar el script run_backend.py
+
+2. Instala las dependencias
+
+```bash
+    cd frontend
+    npm install
+    cd ..
+```
+
+### Ejecuta la aplicacion
+
+```bash
+    python -m run_frontend.py
+```
+
+```bash
+    python -m run_backend.py
+```

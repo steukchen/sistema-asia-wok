@@ -29,7 +29,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeSection, onSectionCha
                 Menú
             </h2>
             <div className="flex items-center justify-center mb-6 md:hidden">
-                <Link href="/admin/dashboard" className="flex items-center space-x-2">
+                <Link href="/dashboard" className="flex items-center space-x-2">
                     <span className={`${lusitana.className} text-3xl font-bold text-[#FB3D01]`}>
                         Admin
                     </span>

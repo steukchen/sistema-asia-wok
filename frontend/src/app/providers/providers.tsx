@@ -59,10 +59,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userData)
             setIsAuthenticated(true)
             
-            router.push('/admin/dashboard'); 
+            router.push('/dashboard'); 
 
         } catch (err) {
             console.error('Error de login en AuthProvider: ', err);
+            throw err
         } finally {
             setIsLoading(false);
         }
@@ -95,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userData)
             setIsAuthenticated(true)
             
-            router.push('/admin/dashboard'); 
+            router.push('/dashboard'); 
 
         } catch (err) {
             console.error('Error de validacion: ', err);
@@ -108,8 +109,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         try {
             validateToken()
-        } catch (error) {
-            console.error("Error al parsear datos de usuario del almacenamiento local:", error);
+        } catch(err) {
+            console.log(err)
             logout();
         }
     }, [validateToken,logout]);

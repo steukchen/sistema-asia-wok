@@ -1,7 +1,7 @@
 import { AuthProvider } from './providers/providers';
 import type { Metadata } from 'next';
 import './globals.css';
-import { montserrat, lusitana } from '../components/font'; 
+import { montserrat } from '../components/font'; 
 
 
 export const metadata: Metadata = {

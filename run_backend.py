@@ -2,20 +2,24 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def run_backend():
-    backend_path = Path(__file__).parent / "backend"
-    os.chdir(backend_path)
+    PATH_BACKEND = os.getenv("PATH_BACKEND")
+    os.chdir(PATH_BACKEND)
     print(f"Directorio actual: {os.getcwd()}")
 
-    venv_activate = Path(".venv/Scripts/activate")
+    NAME_VENV = os.getenv("NAME_VENV")
+    venv_activate = Path(PATH_BACKEND+"/"+NAME_VENV+"/Scripts/activate")
     if not venv_activate.exists():
-        print("No se encontró el entorno virtual 'venv'. Por favor, crea uno antes de ejecutar este script.")
+        print(f"No se encontró el entorno virtual {NAME_VENV}. Por favor, crea uno antes de ejecutar este script.")
         sys.exit(1)
 
     commands = [
         f"call {venv_activate}",
-        "uvicorn main:app --host 0.0.0.0 --port 5000 --reload"
+        "uvicorn app.main:app --host 0.0.0.0 --port 5000 --reload"
     ]
 
     try:

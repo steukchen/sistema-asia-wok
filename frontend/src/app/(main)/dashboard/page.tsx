@@ -1,20 +1,20 @@
 // frontend/src/app/(main)/admin/dashboard/page.tsx
 'use client';
 import React, { useState, useEffect,useMemo } from 'react';
-import { useAuth } from '../../../../app/providers/providers';
+import { useAuth } from '../../providers/providers';
 import { useRouter } from 'next/navigation';
-import AdminSidebar from '../../../../components/admin/AdminSidebar';
-import { UserManagement, DishManagement, RestaurantSettings } from '../../../../components/admin/sections';
-import { useCrudManagement } from '../../../../hooks/useCrudManagement';
-import { useOrderManagement } from '../../../../hooks/useOrderManagement';
-import { Plato, DishFormData, Order, OrderCreationFormData, OrderUpdateFormData } from '../../../../types'; 
-import type { AdminSection, UserRole } from '../../../../components/admin/AdminSidebar';
-import { lusitana } from '../../../../components/font';
-import Button from '../../../../components/ui/button';
-import Modal from '../../../../components/ui/modal';
-import OrderTable from '../../../../components/admin/OrderTable'; 
-import OrderForm from '../../../../components/admin/OrderForm';   
-import OrderDetailsModal from '../../../../components/admin/OrderDetailsModal'; 
+import AdminSidebar from '../../../components/admin/AdminSidebar';
+import { UserManagement, DishManagement, RestaurantSettings } from '../../../components/admin/sections';
+import { useCrudManagement } from '../../../hooks/useCrudManagement';
+import { useOrderManagement } from '../../../hooks/useOrderManagement';
+import { Plato, DishFormData, Order, OrderCreationFormData, OrderUpdateFormData } from '../../../types'; 
+import type { AdminSection, UserRole } from '../../../components/admin/AdminSidebar';
+import { lusitana } from '../../../components/font';
+import Button from '../../../components/ui/button';
+import Modal from '../../../components/ui/modal';
+import OrderTable from '../../../components/admin/OrderTable'; 
+import OrderForm from '../../../components/admin/OrderForm';   
+import OrderDetailsModal from '../../../components/admin/OrderDetailsModal'; 
 
 
 const AdminDashboardPage: React.FC = () => {

@@ -1,4 +1,5 @@
 import Button from '../../../components/ui/button'
+import Link from 'next/link';
 
 
 export default function UnauthorizedPage() {
@@ -8,12 +9,12 @@ export default function UnauthorizedPage() {
 
             <p className="text-gray-600 mb-6">No tienes permiso para acceder a esta página.</p>
 
-            <a href='/'>
+            <Link href='/'>
                 <Button
                     className='text-center bg-red-600 hover:bg-red-400'>
                     Salir
                 </Button>
-            </a>
+            </Link>
         </div>
     );
 }

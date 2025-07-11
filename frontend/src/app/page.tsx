@@ -14,7 +14,7 @@ export default function HomePage() {
                 // Si está autenticado, redirige al dashboard principal de admin
                 // Desde ahí, la lógica de admin/dashboard/page.tsx se encargará de mostrar
                 // la sección correcta según el rol del usuario.
-                router.replace('/admin/dashboard'); 
+                router.replace('/dashboard'); 
             } else {
                 // Si no está autenticado, redirige al login
                 router.replace('/login');
