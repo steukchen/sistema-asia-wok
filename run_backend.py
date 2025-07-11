@@ -8,14 +8,14 @@ def run_backend():
     os.chdir(backend_path)
     print(f"Directorio actual: {os.getcwd()}")
 
-    venv_activate = Path("venv/Scripts/activate")
+    venv_activate = Path(".venv/Scripts/activate")
     if not venv_activate.exists():
         print("No se encontró el entorno virtual 'venv'. Por favor, crea uno antes de ejecutar este script.")
         sys.exit(1)
 
     commands = [
         f"call {venv_activate}",
-        "uvicorn main:app --reload"
+        "uvicorn main:app --host 0.0.0.0 --port 5000 --reload"
     ]
 
     try:

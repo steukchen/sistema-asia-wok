@@ -1,12 +1,11 @@
 // frontend/src/components/admin/AdminSidebar.tsx
 'use client';
 import React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { lusitana } from '../../components/font';
 
 
-export type UserRole = 'admin' | 'cajero' | 'mesonero' | 'cocina';
+export type UserRole = | 'cajero' | 'mesonero' | 'cocina' | 'superadmin';
 
 export type AdminSection = 'users' | 'dishes' | 'orders' | 'settings';
 
@@ -17,18 +16,17 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeSection, onSectionChange, userRole }) => {
-    const pathname = usePathname()
     const navItems: { name: string; href: AdminSection; icon: string; roles: UserRole[]; }[] = [
-        { name: 'Gestión de Usuarios', href: 'users', icon: '👤', roles: ['admin'] },
-        { name: 'Gestión de Platos', href: 'dishes', icon: '🍽️', roles: ['admin', 'cajero'] },
-        { name: 'Gestión de Pedidos', href: 'orders', icon: '📋', roles: ['admin', 'cocina', 'mesonero', 'cajero'] },
-        { name: 'Configuración Restaurante', href: 'settings', icon: '⚙️', roles: ['admin'] },
+        { name: 'Gestión de Usuarios', href: 'users', icon: '👤', roles: ['superadmin'] },
+        { name: 'Gestión de Platos', href: 'dishes', icon: '🍽️', roles: ['superadmin', 'cajero'] },
+        { name: 'Gestión de Pedidos', href: 'orders', icon: '📋', roles: ['superadmin', 'cocina', 'mesonero', 'cajero'] },
+        { name: 'Configuración Restaurante', href: 'settings', icon: '⚙️', roles: ['superadmin'] },
     ];
 
     return (
         <aside className="w-full md:w-64 bg-gray-800 text-white flex-shrink-1 py-8 px-5 rounded-lg shadow-xl md:mr-6 mb-6 md:mb-0">
             <h2 className={`${lusitana.className} text-2xl font-bold text-white mb-6 hidden md:block text-center`}>
-                Admin Menú
+                Menú
             </h2>
             <div className="flex items-center justify-center mb-6 md:hidden">
                 <Link href="/admin/dashboard" className="flex items-center space-x-2">

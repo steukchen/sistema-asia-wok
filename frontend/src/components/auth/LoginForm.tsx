@@ -1,7 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import Image from 'next/image';
-import { lusitana, montserrat } from '../../components/font';
 import Button from '../../components/ui/button';
 
 interface LoginFormProps {
@@ -10,7 +8,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ login, isLoading }) => {
-    const [email, setEmail] = useState('');
+    const [username, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -18,7 +16,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ login, isLoading }) => {
         e.preventDefault();
         setError(''); // Limpia cualquier error previo
         try {
-            await login(email, password);
+            await login(username, password);
         } catch (err) {
             console.error("Error durante el login:", err);
             // Muestra un mensaje de error genérico al usuario
@@ -32,18 +30,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ login, isLoading }) => {
             <form onSubmit={handleSubmit}>
                 {/* Campo de Correo Electrónico */}
                 <div className="mb-4">
-                    <label htmlFor="email" className="block text-gray-700 text-sm sm:text-base font-medium mb-2">
-                        Correo Electrónico
+                    <label htmlFor="username" className="block text-gray-700 text-sm sm:text-base font-medium mb-2">
+                        Nombre de Usuario
                     </label>
                     <input
-                        type="email"
-                        id="email"
-                        value={email}
+                        type="text"
+                        id="username"
+                        value={username}
                         onChange={(e) => setEmail(e.target.value)}
                         // 'w-full' ya es responsivo. 'px-3 py-2' y los bordes son consistentes.
                         className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FB3D01] text-gray-900 text-sm sm:text-base"
                         required
-                        aria-label="Correo Electrónico"
+                        aria-label="Nombre de Usuario"
                     />
                 </div>
 

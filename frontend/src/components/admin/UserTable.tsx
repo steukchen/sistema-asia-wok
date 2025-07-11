@@ -6,7 +6,7 @@ import { User } from '../../types'
 export interface UserTableProps {
     items: User[];
     onEdit: (user: User) => void;
-    onDelete: (userId: number) => void;
+    onDelete: (userId: string) => void;
 }
 
 const UserTable: React.FC<UserTableProps> = ({ items: users, onEdit, onDelete }) => {
@@ -46,14 +46,14 @@ const UserTable: React.FC<UserTableProps> = ({ items: users, onEdit, onDelete })
                                 {user.email}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                {user.nombre}
+                                {user.username}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">
-                                {user.role}
+                                {user.rol}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <span className={`px-2 inline-flex text-xs leading-6 font-semibold rounded-full ${user.is_active ? 'bg-green-300 text-green-800' : 'bg-red-300 text-red-800'}`}>
-                                    {user.is_active ? 'Sí' : 'No'}
+                                <span className={`px-2 inline-flex text-xs leading-6 font-semibold rounded-full ${user.status ? 'bg-green-300 text-green-800' : 'bg-red-300 text-red-800'}`}>
+                                    {user.status ? 'Sí' : 'No'}
                                 </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

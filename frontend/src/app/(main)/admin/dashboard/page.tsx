@@ -1,13 +1,13 @@
 // frontend/src/app/(main)/admin/dashboard/page.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useMemo } from 'react';
 import { useAuth } from '../../../../app/providers/providers';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from '../../../../components/admin/AdminSidebar';
-import { UserManagement, DishManagement, OrderManagement, RestaurantSettings } from '../../../../components/admin/sections';
+import { UserManagement, DishManagement, RestaurantSettings } from '../../../../components/admin/sections';
 import { useCrudManagement } from '../../../../hooks/useCrudManagement';
 import { useOrderManagement } from '../../../../hooks/useOrderManagement';
-import { User, UserFormData, Plato, DishFormData, Order, OrderCreationFormData, OrderStatus, OrderUpdateFormData } from '../../../../types'; 
+import { Plato, DishFormData, Order, OrderCreationFormData, OrderUpdateFormData } from '../../../../types'; 
 import type { AdminSection, UserRole } from '../../../../components/admin/AdminSidebar';
 import { lusitana } from '../../../../components/font';
 import Button from '../../../../components/ui/button';
@@ -22,42 +22,19 @@ const AdminDashboardPage: React.FC = () => {
     const router = useRouter();
 
     const [activeSection, setActiveSection] = useState<AdminSection | null>(null);
-
-    const roleConfig: { [key in UserRole]: { allowedSections: AdminSection[]; defaultSection: AdminSection } } = {
-        'admin': { allowedSections: ['users', 'dishes', 'orders', 'settings'], defaultSection: 'users' },
-        'cajero': { allowedSections: ['orders', 'dishes'], defaultSection: 'orders' },
-        'mesonero': { allowedSections: ['orders'], defaultSection: 'orders' },
-        'cocina': { allowedSections: ['orders'], defaultSection: 'orders' },
-    };
-
-    const {
-        items: users,
-        loading: usersLoading,
-        error: usersError,
-        showForm: showUserForm,
-        editingItem: editingUser,
-        handleSaveItem: handleSaveUser,
-        handleDeleteItem: handleDeleteUser,
-        handleCreateNew: handleCreateNewUser,
-        handleEditItem: handleEditUser,
-        handleCancelForm: handleCancelUserForm,
-        setError: setUserError
-    } = useCrudManagement<User, UserFormData, UserFormData>('/users');
+    const roleConfig: { [key in UserRole]: { allowedSections: AdminSection[]; defaultSection: AdminSection } } = useMemo(() => ({
+        superadmin: { allowedSections: ['users', 'dishes', 'orders', 'settings'], defaultSection: 'users' },
+        cajero: { allowedSections: ['orders', 'dishes'], defaultSection: 'orders' },
+        mesonero: { allowedSections: ['orders'], defaultSection: 'orders' },
+        cocina: { allowedSections: ['orders'], defaultSection: 'orders' },
+    }), []);
 
     const {
         items: dishes,
         loading: dishesLoading,
         error: dishesError,
-        showForm: showDishForm,
-        editingItem: editingDish,
-        handleSaveItem: handleSaveDish,
-        handleDeleteItem: handleDeleteDish,
-        handleCreateNew: handleCreateNewDish,
-        handleEditItem: handleEditDish,
-        handleCancelForm: handleCancelDishForm,
-        setError: setDishError,
         fetchItems: fetchDishes // ¡NUEVO! Alias fetchItems como fetchDishes
-    } = useCrudManagement<Plato, DishFormData, DishFormData>('/platos');
+    } = useCrudManagement<Plato, DishFormData, DishFormData>('/dishes');
 
     const {
         orders,
@@ -72,7 +49,6 @@ const AdminDashboardPage: React.FC = () => {
         handleViewOrderDetails,
         handleCloseDetailsModal,
         updateOrder, 
-        setError: setOrderError
     } = useOrderManagement();
 
     const [showOrderFormModal, setShowOrderFormModal] = useState(false);
@@ -80,6 +56,7 @@ const AdminDashboardPage: React.FC = () => {
     const [showOrderEditModal, setShowOrderEditModal] = useState(false); 
 
     const handleEditOrder = (order: Order) => {
+        fetchDishes()
         setEditingOrder(order);
         setShowOrderEditModal(true);
     };
@@ -119,17 +96,17 @@ const AdminDashboardPage: React.FC = () => {
             console.log("user:", user);
 
             if (user) {
-                const normalizedUserRole = user.role.trim().toLowerCase();
+                const normalizedUserRole = user.rol.trim().toLowerCase();
                 const userRole: UserRole = normalizedUserRole as UserRole;
                 
-                console.log("Rol de usuario original (desde Auth):", user.role);
+                console.log("Rol de usuario original (desde Auth):", user.rol);
                 console.log("Rol de usuario normalizado:", normalizedUserRole);
                 console.log("Rol de usuario casteado (para TypeScript):", userRole);
                 console.log("Claves de roleConfig:", Object.keys(roleConfig));
                 console.log("¿normalizedUserRole está en roleConfig.keys?", Object.keys(roleConfig).includes(userRole));
 
                 if (!Object.keys(roleConfig).includes(userRole)) {
-                    console.error(`ERROR CRÍTICO: Rol de usuario no reconocido o no manejado: '${user.role}' (normalizado: '${normalizedUserRole}'). Redirigiendo a /unauthorized.`);
+                    console.error(`ERROR CRÍTICO: Rol de usuario no reconocido o no manejado: '${user.rol}' (normalizado: '${normalizedUserRole}'). Redirigiendo a /unauthorized.`);
                     router.push('/unauthorized');
                     return;
                 }
@@ -139,14 +116,14 @@ const AdminDashboardPage: React.FC = () => {
                 console.log("config.allowedSections.length:", config?.allowedSections.length);
 
                 if (!config || config.allowedSections.length === 0) {
-                    console.error(`ERROR CRÍTICO: Configuración de rol faltante o secciones permitidas vacías para el rol: ${user.role}. Redirigiendo a /unauthorized.`);
+                    console.error(`ERROR CRÍTICO: Configuración de rol faltante o secciones permitidas vacías para el rol: ${user.rol}. Redirigiendo a /unauthorized.`);
                     router.push('/unauthorized');
                     return;
                 }
 
                 if (activeSection === null || !config.allowedSections.includes(activeSection)) {
                     if (activeSection !== null && !config.allowedSections.includes(activeSection)) {
-                        console.warn(`ADVERTENCIA: Usuario ${user.email} con rol ${user.role} intentó acceder a la sección ${activeSection} sin permiso. Redirigiendo a ${config.defaultSection}.`);
+                        console.warn(`ADVERTENCIA: Usuario ${user.email} con rol ${user.rol} intentó acceder a la sección ${activeSection} sin permiso. Redirigiendo a ${config.defaultSection}.`);
                     }
                     console.log(`Estableciendo activeSection a la sección por defecto: ${config.defaultSection}`);
                     setActiveSection(config.defaultSection);
@@ -159,7 +136,7 @@ const AdminDashboardPage: React.FC = () => {
             }
         }
         console.log("--- useEffect: Fin ---");
-    }, [isLoading, user, router, activeSection]); 
+    }, [isLoading, user, router, activeSection,roleConfig]); 
 
     if (isLoading || !user || activeSection === null) { 
         console.log("Renderizando estado de carga/redirección. isLoading:", isLoading, "user:", user, "activeSection:", activeSection);
@@ -171,13 +148,13 @@ const AdminDashboardPage: React.FC = () => {
     }
 
     const renderActiveSection = () => {
-        const normalizedUserRole = user!.role.trim().toLowerCase();
+        const normalizedUserRole = user!.rol.trim().toLowerCase();
         const userRole: UserRole = normalizedUserRole as UserRole;
         
         const config = roleConfig[userRole];
 
         if (!config || !config.allowedSections.includes(activeSection as AdminSection)) {
-            console.error(`ERROR DE RENDERIZADO: Usuario ${user!.email} con rol ${user!.role} intentó renderizar la sección ${activeSection} sin permiso. Esto debería haber sido manejado por useEffect.`);
+            console.error(`ERROR DE RENDERIZADO: Usuario ${user!.email} con rol ${user!.rol} intentó renderizar la sección ${activeSection} sin permiso. Esto debería haber sido manejado por useEffect.`);
             return (
                 <div className="text-red-600 text-center py-8">
                     No tienes permiso para ver esta sección.
@@ -287,7 +264,6 @@ const AdminDashboardPage: React.FC = () => {
                         {!ordersLoading && orders.length === 0 && !ordersError && (
                             <p className="text-gray-600 text-center py-8">No hay pedidos registrados.</p>
                         )}
-
                         {/* Modal de Detalles del Pedido */}
                         <OrderDetailsModal
                             isOpen={showOrderDetailsModal}
@@ -312,14 +288,14 @@ const AdminDashboardPage: React.FC = () => {
             <AdminSidebar 
                 activeSection={activeSection} 
                 onSectionChange={setActiveSection} 
-                userRole={user!.role.trim().toLowerCase() as UserRole} 
+                userRole={user!.rol.trim().toLowerCase() as UserRole} 
             />
 
             {/* Área de contenido principal del dashboard */}
             <div className="flex-1 bg-white p-6 rounded-lg shadow-md border border-gray-200 min-w-0">
                 {/* Título de bienvenida */}
                 <h1 className={`${lusitana.className} text-3xl sm:text-4xl font-bold text-[#FB3D01] mb-6 sm:mb-8 text-center md:text-left`}>
-                    Bienvenido, {user!.nombre} ({user!.role})
+                    Bienvenido, {user!.username} ({user!.rol})
                 </h1>
                 <p className="text-gray-700 text-lg sm:text-xl mb-8 text-center md:text-left">
                     Gestiona tu restaurante de forma eficiente.

@@ -18,9 +18,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
     // Función auxiliar para obtener el color del estado
     const getStatusClasses = (status: OrderStatus) => {
         switch (status) {
-            case 'pendiente':
+            case 'pending':
                 return 'bg-blue-100 text-blue-800';
-            case 'listo':
+            case 'completed':
                 return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
@@ -28,7 +28,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
     };
 
     // Opciones de estado para el select
-    const statusOptions: OrderStatus[] = ['pendiente', 'listo'];
+    const statusOptions: OrderStatus[] = ['pending', 'completed'];
 
     return (
         <div className="overflow-x-auto w-full min-w-0 bg-white rounded-lg shadow-md border border-gray-200">
@@ -45,9 +45,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                         <th scope="col" className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
                             Fecha
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        {/* <th scope="col" className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
                             Total
-                        </th>
+                        </th> */}
                         <th scope="col" className="px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
                             Estado
                         </th>
@@ -72,17 +72,17 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                     {order.id}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 text-sm sm:text-base text-gray-700">
-                                    {order.numero_mesa}
+                                    {order.table_id}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-700">
-                                    {new Date(order.fecha_creacion).toLocaleDateString()}
+                                    {new Date(order.order_date).toLocaleDateString()}
                                 </td>
-                                <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-700">
+                                {/* <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-700">
                                     ${order.total.toFixed(2)}
-                                </td>
+                                </td> */}
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(order.estado)}`}>
-                                        {order.estado.replace(/_/g, ' ')}
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(order.state)}`}>
+                                        {order.state.replace(/_/g, ' ')}
                                     </span>
                                 </td>
                                 {/* Acciones */}
@@ -91,7 +91,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
 
                                         {/* ESTADO DEL PEDIDO (SELECT) */}
                                         <select
-                                            value={order.estado}
+                                            value={order.state}
                                             onChange={(e) => onUpdateStatus(order.id, e.target.value as OrderStatus)}
                                             className="block w-full sm:w-auto px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 transition-all duration-200 ease-in-out"
                                             disabled={isLoading}

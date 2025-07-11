@@ -1,86 +1,100 @@
 // Definiciones de roles de usuario
-export type UserRole = 'admin' | 'cajero' | 'mesonero' | 'cocina';
+export type UserRole = 'superadmin' | 'cajero' | 'mesonero' | 'cocina';
 
 // Interfaz para el usuario
 export interface User {
-    id: number;
+    id: string;
     email: string;
-    nombre: string;
-    role: UserRole;
-    is_active: boolean;
+    username: string;
+    rol: UserRole;
+    status: boolean;
 }
 
 // Interfaz para los datos del formulario de usuario
 export interface UserFormData {
     email: string;
-    nombre: string;
-    role: string;
+    username: string;
+    rol: string;
     password?: string;
-    is_active: boolean;
+    status: boolean;
+}
+
+export interface TipoPlato{
+    id: number;
+    name: string
 }
 
 // Interfaz para un plato
 export interface Plato {
     id: number;
-    nombre: string;
-    descripcion: string;
-    precio: number;
-    categoria: string;
-    is_active: boolean;
+    name: string;
+    description: string;
+    price: number;
+    type: TipoPlato;
+    status: boolean;
 }
 
 // Interfaz para los datos del formulario de plato
 export interface DishFormData {
-    nombre: string;
-    descripcion: string;
-    precio: number;
-    categoria: string;
-    is_active: boolean;
+    name: string;
+    description: string;
+    price: number;
+    type_id: number;
+    status: boolean;
 }
 
 // Definición de estados de pedido
-export type OrderStatus = 'pendiente' | 'en_preparacion' | 'listo' | 'entregado' | 'cancelado'; // Asegúrate de que esto coincida con tu backend
+export type OrderStatus = 'pending' | 'completed' | 'cancelled'; // Asegúrate de que esto coincida con tu backend
 
 // Interfaz para un ítem de pedido al crearlo o enviarlo para actualización
 export interface OrderItemCreation {
-    plato_id: number;
-    cantidad: number;
+    dish_id: number;
+    quantity: number;
 }
 
 // Interfaz para un ítem de pedido que se recibe del backend (incluye detalles del plato)
 export interface OrderItem {
-    plato_id: number;
-    cantidad: number;
-    plato: Plato; // Detalles completos del plato
-    nombre_plato: string; 
-    precio_unitario: number;
+    quantity: number;
+    dish: Plato; 
 }
 
 // Interfaz para la data de creación de un pedido 
 export interface OrderCreationFormData {
-    numero_mesa: number;
-    items: OrderItemCreation[]; 
-    notas?: string;
+    table_id: number;
+    dishes: OrderItemCreation[]; 
+    // notas?: string;
 }
 
 // Interfaz para la data de actualización de un pedido
 export interface OrderUpdateFormData {
-    numero_mesa?: number; 
-    estado?: OrderStatus; 
-    notas?: string; 
-    items?: OrderItemCreation[]; 
+    table_id?: number; 
+    state?: OrderStatus; 
+    // notas?: string; 
+    dishes?: OrderItemCreation[]; 
 }
 
 // Interfaz para un Pedido completo (lo que se recibe del backend)
 export interface Order {
     id: number;
-    usuario_id: number;
-    numero_mesa: number;
-    estado: OrderStatus;
-    total: number;
-    notas?: string;
-    fecha_creacion: string; 
-    fecha_actualizacion: string; 
-    usuario: User; 
-    items: OrderItem[]; 
+    created_by: string;
+    table_id: number;
+    state: OrderStatus;
+    notes?: string;
+    order_date: string; 
+}
+
+export interface OrderWithDishes {
+    id: number;
+    created_by: string;
+    table_id: number;
+    state: OrderStatus;
+    notes?: string;
+    order_date: string; 
+    dishes: OrderItem[]; 
+}
+
+export interface Table{
+    id: number;
+    name: string
+    state: string
 }

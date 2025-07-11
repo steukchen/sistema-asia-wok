@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useAuth } from '../../providers/providers';
 import Footer from '../../../components/ui/footer';
 import LoginForm from '../../../components/auth/LoginForm';
-import { lusitana, montserrat } from '../../../components/font';
+import { montserrat } from '../../../components/font';
 
 export default function LoginPage() {
     const { login, isLoading } = useAuth();

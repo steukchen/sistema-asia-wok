@@ -5,10 +5,10 @@ import Button from '../ui/button';
 
 interface UserFormData {
     email: string;
-    nombre: string;
-    role: string;
+    username: string;
+    rol: string;
     password?: string;
-    is_active: boolean;
+    status: boolean;
 }
 
 interface UserFormProps {
@@ -22,10 +22,10 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
     // Estado del formulario
     const [formData, setFormData] = useState<UserFormData>({
         email: '',
-        nombre: '',
-        role: 'mesonero', // Rol por defecto
+        username: '',
+        rol: 'mesonero', // Rol por defecto
         password: '',
-        is_active: true,
+        status: true,
     });
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -34,19 +34,19 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
         if (initialData) {
             setFormData({
                 email: initialData.email,
-                nombre: initialData.nombre,
-                role: initialData.role,
+                username: initialData.username,
+                rol: initialData.rol,
                 password: '', // La contraseña no se precarga por seguridad
-                is_active: initialData.is_active,
+                status: initialData.status,
             });
         } else {
             // Reinicia el formulario para creación
             setFormData({
                 email: '',
-                nombre: '',
-                role: 'mesonero',
+                username: '',
+                rol: 'waiter',
                 password: '',
-                is_active: true,
+                status: true,
             });
         }
         setFormError(null); // Limpia errores al cambiar de modo
@@ -67,7 +67,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
         setFormError(null);
 
         // Validaciones básicas del lado del cliente
-        if (!formData.email || !formData.nombre || !formData.role) {
+        if (!formData.email || !formData.username || !formData.rol) {
             setFormError('Todos los campos obligatorios deben ser llenados.');
             return;
         }
@@ -83,9 +83,9 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
         // Prepara el payload para enviar al backend
         const payload: UserFormData = {
             email: formData.email,
-            nombre: formData.nombre,
-            role: formData.role,
-            is_active: formData.is_active,
+            username: formData.username,
+            rol: formData.rol,
+            status: formData.status,
         };
 
         // Maneja el campo de contraseña específicamente para actualizaciones y creaciones
@@ -126,6 +126,21 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                 </div>
             )}
 
+            {/* Campo Nombre */}
+            <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                    placeholder={'Ingrese Nombre de Usuario'}
+                />
+            </div>
+
             {/* Campo Email */}
             <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -140,21 +155,6 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                     className="w-full px-3 py-2 border border-indigo-300 text-black rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     required
                     placeholder={'Ingrese Email'}
-                />
-            </div>
-
-            {/* Campo Nombre */}
-            <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                <input
-                    type="text"
-                    id="nombre"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    required
-                    placeholder={'Ingrese Nombre'}
                 />
             </div>
 
@@ -179,21 +179,21 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
 
             {/* Campo Rol */}
             <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1" >
+                <label htmlFor="rol" className="block text-sm font-medium text-gray-700 mb-1" >
                     Rol
                 </label>
                 <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
+                    id="rol"
+                    name="rol"
+                    value={formData.rol}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                     required
                 >
-                    <option value="admin">Administrador</option>
-                    <option value="cajero">Cajero</option>
-                    <option value="mesonero">Mesonero</option>
-                    <option value="cocina">Cocina</option>
+                    <option value="superadmin">SuperAdmin</option>
+                    <option value="admin">Admin</option>
+                    <option value="waiter">Waiter</option>
+                    <option value="chef">Chef</option>
                 </select>
             </div>
 
@@ -201,9 +201,9 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
             <div className="flex items-center">
                 <input
                     type="checkbox"
-                    id="is_active"
-                    name="is_active"
-                    checked={formData.is_active}
+                    id="status"
+                    name="status"
+                    checked={formData.status}
                     onChange={handleChange}
                     className="h-4 w-4 text-[#FB3D01] border-gray-300 rounded focus:ring-[#FB3D01]"
                 />

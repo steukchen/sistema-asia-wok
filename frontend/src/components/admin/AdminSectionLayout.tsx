@@ -3,9 +3,8 @@ import React from 'react';
 import Button from '../ui/button';
 import Modal from '../ui/modal';
 import { lusitana } from '../font';
-import { User, UserFormData, Plato, DishFormData } from '../../types'; 
 
-interface AdminSectionLayoutProps<T extends { id: number }, FormData> {
+interface AdminSectionLayoutProps<T extends { id: string | number }, FormData> {
     title: string;
     createButtonText: string;
     loading: boolean;
@@ -18,7 +17,7 @@ interface AdminSectionLayoutProps<T extends { id: number }, FormData> {
     TableComponent: React.ComponentType<{
         items: T[];
         onEdit: (item: T) => void;
-        onDelete: (itemId: number) => void;
+        onDelete: (itemId: string | number) => void;
     }>;
     FormComponent: React.ComponentType<{
         initialData?: FormData | null;
@@ -31,11 +30,11 @@ interface AdminSectionLayoutProps<T extends { id: number }, FormData> {
     onSave: (data: FormData) => Promise<void>;
     onCancelForm: () => void;
     onEditItem: (item: T) => void;
-    onDeleteItem: (itemId: number) => Promise<void>;
+    onDeleteItem: (itemId: number | string) => Promise<void>;
     onCreateNew: () => void;
 }
 
-const AdminSectionLayout = <T extends { id: number }, FormData>({ 
+const AdminSectionLayout = <T extends { id: string | number}, FormData>({ 
     title,
     createButtonText,
     loading,

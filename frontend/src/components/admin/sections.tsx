@@ -1,6 +1,5 @@
 // frontend/src/components/admin/sections.tsx
 'use client';
-import { useState } from 'react';
 import React from 'react';
 import Button from '../ui/button';
 import { lusitana } from '../font';
@@ -9,12 +8,11 @@ import UserForm from './UserForm';
 import DishTable from './DishTable';
 import DishForm from './DishForm';
 import OrderTable from './OrderTable';
-import OrderForm from './OrderForm';
 import OrderDetailsModal from './OrderDetailsModal';
 import AdminSectionLayout from './AdminSectionLayout';
 import { useCrudManagement } from '../../hooks/useCrudManagement';
 import { useOrderManagement } from '../../hooks/useOrderManagement';
-import { User, UserFormData, Plato, DishFormData, Order, OrderStatus, OrderCreationFormData } from '../../types';
+import { User, UserFormData, Plato, DishFormData } from '../../types';
 
 export const UserManagement: React.FC = () => {
     const {
@@ -27,8 +25,7 @@ export const UserManagement: React.FC = () => {
         handleDeleteItem: handleDeleteUser,
         handleCreateNew,
         handleEditItem: handleEditUser,
-        handleCancelForm,
-        setError
+        handleCancelForm
     } = useCrudManagement<User, UserFormData, UserFormData>('/users');
 
     return (
@@ -62,9 +59,8 @@ export const DishManagement: React.FC = () => {
         handleDeleteItem: handleDeletePlato,
         handleCreateNew,
         handleEditItem: handleEditPlato,
-        handleCancelForm,
-        setError
-    } = useCrudManagement<Plato, DishFormData, DishFormData>('/platos');
+        handleCancelForm
+    } = useCrudManagement<Plato, DishFormData, DishFormData>('/dishes');
 
     return (
         <AdminSectionLayout<Plato, DishFormData>
@@ -97,7 +93,6 @@ export const OrderManagement: React.FC = () => {
         handleDeleteOrder,
         handleViewOrderDetails,
         handleCloseDetailsModal,
-        setError
     } = useOrderManagement();
 
     return (

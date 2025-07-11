@@ -1,28 +1,27 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../app/providers/providers'; // Ruta ajustada
+import { useAuth } from '@/app/providers/providers'; // Ruta ajustada
 
 interface CrudItem {
-    id: number;
-    nombre: string;
-    is_active: boolean;
+    id: string | number;
+    status: boolean;
 }
 
 export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
     endpointUrl: string
 ) => {
-    const { token } = useAuth();
-    const API_BASE_URL = 'http://localhost:8000';
 
     const [items, setItems] = useState<T[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [showForm, setShowForm] = useState<boolean>(false);
     const [editingItem, setEditingItem] = useState<T | null>(null);
+    const { user } = useAuth();
+
 
     // Función para cargar los ítems desde el backend
     const fetchItems = useCallback(async () => {
-        if (!token) {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             setLoading(false);
             return;
@@ -31,12 +30,14 @@ export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}${endpointUrl}/`, {
+            const params = new URLSearchParams({
+                url: `${endpointUrl}/get_${endpointUrl.replace("/","")}`
+            });
+            const response = await fetch("/api/get?"+params, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+                }
             });
 
             if (!response.ok) {
@@ -51,13 +52,15 @@ export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
 
             const data: T[] = await response.json();
             setItems(data);
-        } catch (err: any) {
+        } catch (err) {
             console.error(`Error fetching ${endpointUrl.slice(1)}:`, err);
-            setError(err.message || 'Error desconocido al cargar datos.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al cargar datos.');
+            }
         } finally {
             setLoading(false);
         }
-    }, [token, endpointUrl]);
+    }, [endpointUrl,user]);
 
     // Carga los ítems al montar el componente que usa este hook
     useEffect(() => {
@@ -66,7 +69,7 @@ export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
 
     // Función para manejar la creación/actualización de un ítem
     const handleSaveItem = useCallback(async (itemData: CreateData | UpdateData) => {
-        if (!token) {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             return;
         }
@@ -75,53 +78,58 @@ export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
         setError(null);
         try {
             const method = editingItem ? 'PUT' : 'POST';
-            const url = editingItem ? `${API_BASE_URL}${endpointUrl}/${editingItem.id}` : `${API_BASE_URL}${endpointUrl}/`;
+            const params = new URLSearchParams({
+                url: `${endpointUrl}/${editingItem ? "update" : "create"}_${endpointUrl.replace("/","").slice(0,endpointUrl=="/dishes" ? -2: -1)}${editingItem ? "/"+editingItem.id : ""}`
+            });
+            // const url = editingItem ? `${API_BASE_URL}${endpointUrl}/${editingItem.id}` : `/api/post/${endpointUrl}/create_${endpointUrl.replace("/","")}`;
 
-            const response = await fetch(url, {
+            const response = await fetch("/api/post?"+params, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(itemData),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || `Error al ${editingItem ? 'actualizar' : 'crear'} ${endpointUrl.slice(1, -1)}.`);
+                throw new Error(errorData.error.detail || `Error al ${editingItem ? 'actualizar' : 'crear'} ${endpointUrl.slice(1, -1)}.`);
             }
 
             await fetchItems(); // Recarga la lista de ítems
             setShowForm(false);
             setEditingItem(null); // Limpia el ítem en edición
-        } catch (err: any) {
+        } catch (err) {
             console.error(`Error saving ${endpointUrl.slice(1, -1)}:`, err);
-            setError(err.message || 'Error desconocido al guardar.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al guardar.');
+            }
         } finally {
             setLoading(false);
         }
-    }, [token, editingItem, endpointUrl, fetchItems]);
+    }, [user, editingItem, endpointUrl, fetchItems]);
 
     // Función para manejar la eliminación de un ítem
-    const handleDeleteItem = useCallback(async (itemId: number) => {
-        if (!token) {
+    const handleDeleteItem = useCallback(async (itemId: number |string) => {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             return;
         }
-
+        
         // Confirmación antes de eliminar
         if (!window.confirm('¿Estás seguro de que quieres eliminar este elemento?')) {
             return;
         }
-
+        
         setLoading(true);
         setError(null);
+        
         try {
-            const response = await fetch(`${API_BASE_URL}${endpointUrl}/${itemId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
+            const params = new URLSearchParams({
+                    url: `${endpointUrl}/delete_${endpointUrl.replace("/","").slice(0,endpointUrl=="/dishes" ? -2: -1)}/${itemId}`
+            });
+            const response = await fetch(`/api/delete?`+params, {
+                method: 'DELETE'
             });
 
             if (!response.ok) {
@@ -130,13 +138,15 @@ export const useCrudManagement = <T extends CrudItem, CreateData, UpdateData>(
             }
 
             await fetchItems();
-        } catch (err: any) {
+        } catch (err) {
             console.error(`Error deleting ${endpointUrl.slice(1, -1)}:`, err);
-            setError(err.message || 'Error desconocido al eliminar.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al eliminar.');
+            }
         } finally {
             setLoading(false);
         }
-    }, [token, endpointUrl, fetchItems]);
+    }, [user, endpointUrl, fetchItems]);
 
     // Función para iniciar la creación de un ítem
     const handleCreateNew = useCallback(() => {

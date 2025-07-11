@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Button from '../ui/button';
-import { Plato, Order, OrderItem, OrderItemCreation, OrderCreationFormData, OrderUpdateFormData } from '../../types'; 
+import { Plato,Order, OrderItem, OrderItemCreation, OrderCreationFormData, OrderUpdateFormData, OrderWithDishes, Table } from '../../types'; 
 
 interface OrderFormProps {
     availableDishes: Plato[]; 
@@ -13,37 +13,67 @@ interface OrderFormProps {
     isEditing: boolean; 
 }
 
+
+
 const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel, isLoading, initialData, isEditing }) => {
-    const [numeroMesa, setNumeroMesa] = useState<number | ''>('');
+    const [numeroMesa, setNumeroMesa] = useState<number | 1>(1);
     const [notas, setNotas] = useState('');
     const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]); 
     const [formError, setFormError] = useState<string | null>(null);
+    const [items,setItems] = useState<OrderItem[]>([]); 
+    const [searchTerm,setSearchTerm] = useState("")
 
     const [currentDishIdToAdd, setCurrentDishIdToAdd] = useState<number | ''>('');
     const [currentDishQuantityToAdd, setCurrentDishQuantityToAdd] = useState<number>(1);
-
+    const [tables,setTables] = useState<[Table] | null>(null);
+    
     // Efecto para inicializar el formulario cuando se proporciona initialData (modo edición)
     useEffect(() => {
         if (isEditing && initialData) {
-            setNumeroMesa(initialData.numero_mesa);
-            setNotas(initialData.notas || '');
-            setSelectedItems(initialData.items.map(item => ({
-                plato_id: item.plato_id,
-                nombre_plato: item.plato.nombre, 
-                cantidad: item.cantidad,
-                precio_unitario: item.plato.precio, 
-                plato: item.plato 
-            })));
+            const params = new URLSearchParams({
+                url: `/orders/get_order_dishes/`+initialData.id
+            });
+            fetch(`/api/get?`+params, {
+                method: 'GET'
+            }).then(response=>response.json())
+            .then((data: OrderWithDishes)=>{
+                setNumeroMesa(data.table_id);
+                setSelectedItems(data.dishes.map(item => ({
+                    dish: item.dish,
+                    quantity: item.quantity
+                })));
+                setItems(data.dishes.map(item => ({
+                    dish: item.dish,
+                    quantity: item.quantity
+                })));
+                
+            })
+            // setNotas(initialData.notas || '');
         } else {
-            setNumeroMesa('');
+            setNumeroMesa(1);
             setNotas('');
             setSelectedItems([]);
             setFormError(null);
         }
     }, [isEditing, initialData]); 
 
+    useEffect(() =>{
+        const params = new URLSearchParams({
+                url: `/tables/get_tables`
+            });
+        fetch("/api/get?"+params,{
+            method:"GET"
+        })
+        .then(response=>response.json())
+        .then(data=>{
+            setTables(data)
+        }).catch(rej=>{
+            setFormError("Error al cargar los tipos de platos: "+rej)
+        })
+    },[])
+
     const calculateTotal = () => {
-        return selectedItems.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0);
+        return selectedItems.reduce((sum, item) => sum + (item.quantity * item.dish.price), 0);
     };
 
     const handleAddItem = () => {
@@ -60,13 +90,12 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
         const dishToAdd = availableDishes.find(dish => dish.id === currentDishIdToAdd);
 
         if (dishToAdd) {
-            const existingItemIndex = selectedItems.findIndex(item => item.plato_id === dishToAdd.id);
-
+            const existingItemIndex = selectedItems.findIndex(item => item.dish.id === dishToAdd.id);
             if (existingItemIndex > -1) {
                 setSelectedItems(prevItems =>
                     prevItems.map((item, index) =>
                         index === existingItemIndex
-                            ? { ...item, cantidad: item.cantidad + currentDishQuantityToAdd }
+                            ? { ...item, quantity: item.quantity + currentDishQuantityToAdd }
                             : item
                     )
                 );
@@ -74,16 +103,12 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
                 setSelectedItems(prevItems => [
                     ...prevItems,
                     {
-                        plato_id: dishToAdd.id,
-                        nombre_plato: dishToAdd.nombre,
-                        cantidad: currentDishQuantityToAdd,
-                        precio_unitario: dishToAdd.precio,
-                        plato: dishToAdd
+                        dish: dishToAdd,
+                        quantity: currentDishQuantityToAdd,
                     }
                 ]);
             }
 
-            setCurrentDishIdToAdd('');
             setCurrentDishQuantityToAdd(1);
         } else {
             setFormError('Plato no encontrado.');
@@ -91,14 +116,21 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
     };
 
     const handleRemoveItem = (platoId: number) => {
-        setSelectedItems(prevItems => prevItems.filter(item => item.plato_id !== platoId));
+        if (isEditing){
+            const itemDeleted = selectedItems.filter(item => item.dish.id == platoId)[0]
+            const isItemUpdate = items.find(i=>i.dish.id==itemDeleted.dish.id)
+            if (isItemUpdate){
+                isItemUpdate.quantity=0
+            }
+        }
+        setSelectedItems(prevItems => prevItems.filter(item => item.dish.id !== platoId));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setFormError(null);
 
-        if (numeroMesa === '' || numeroMesa <= 0) {
+        if (numeroMesa <= 0) {
             setFormError('El número de mesa es obligatorio y debe ser mayor que cero.');
             return;
         }
@@ -109,28 +141,39 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
 
         // Mapear selectedItems a OrderItemCreation para enviarlos al backend
         const itemsForBackend: OrderItemCreation[] = selectedItems.map(item => ({
-            plato_id: item.plato_id,
-            cantidad: item.cantidad,
+            dish_id: item.dish.id,
+            quantity: item.quantity,
         }));
 
         if (isEditing) {
+            const itemsToDeleted = items.filter(item=>item.quantity==0)
+            const itemsData = itemsToDeleted.map(item => ({
+                dish_id: item.dish.id,
+                quantity: item.quantity,
+            }));
+            itemsForBackend.push(...itemsData)
+            console.log(itemsForBackend)
             // Si estamos editando, creamos OrderUpdateFormData
             const orderData: OrderUpdateFormData = {
-                numero_mesa: Number(numeroMesa),
-                items: itemsForBackend,
-                notas: notas || undefined,
+                table_id: Number(numeroMesa),
+                dishes: itemsForBackend,
+                // notas: notas || undefined,
             };
             await onSave(orderData);
         } else {
             // Si estamos creando, creamos OrderCreationFormData
             const orderData: OrderCreationFormData = {
-                numero_mesa: Number(numeroMesa),
-                items: itemsForBackend,
-                notas: notas || undefined,
+                table_id: Number(numeroMesa),
+                dishes: itemsForBackend,
+                // notas: notas || undefined,
             };
             await onSave(orderData);
         }
     };
+
+    const filteredData = searchTerm.replace(" ","")!="" ? availableDishes.filter((dish) =>
+        dish.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) : []
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
@@ -144,17 +187,23 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
             {/* Sección de Datos del Pedido (Número de Mesa) */}
             <h3 className="text-lg text-center sm:text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Datos del Pedido</h3>
             <div>
-                <label htmlFor="numeroMesa" className="block text-sm font-medium text-gray-700 mb-1">Número de Mesa</label>
-                <input
-                    type="number"
-                    id="numeroMesa"
+                <label htmlFor="table_id" className="block text-sm font-medium text-gray-700 mb-1" >
+                    Seleccione una mesa
+                </label>
+                <select
+                    id="table_id"
+                    name="table_id"
                     value={numeroMesa}
-                    onChange={(e) => setNumeroMesa(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition-all duration-200 ease-in-out"
+                    onChange={e => setNumeroMesa(parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                     required
-                    min="1"
-                    disabled={isLoading}
-                />
+                >
+                    {
+                        tables?.map(table=>(
+                            <option value={table.id} key={table.id}>{table.name}</option>
+                        ))
+                    }
+                </select>
             </div>
             <div>
                 <label htmlFor="notas" className="block text-sm font-medium text-gray-700 mb-1">Notas (Opcional)</label>
@@ -167,13 +216,26 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
                     disabled={isLoading} 
                 ></textarea>
             </div>
+            
 
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 border-b pb-2 mb-4">Buscar Platos</h3>
             {/* Sección de Platos del Pedido */}
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 border-b pb-2 mb-4">Platos del Pedido</h3>
             <div className="flex flex-col sm:flex-row gap-3 items-end">
                 <div className="flex-1 w-full">
-                    <label htmlFor="selectDish" className="block text-sm font-medium text-gray-700 mb-1">Seleccionar Plato</label>
-                    <select
+                    {/* Campo Nombre */}
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Buscar por nombre</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={searchTerm}
+                            onChange={e=>setSearchTerm(e.target.value)}
+                            className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            required
+                        />
+                    </div>
+                    {/* <select
                         id="selectDish"
                         value={currentDishIdToAdd}
                         onChange={(e) => setCurrentDishIdToAdd(Number(e.target.value))}
@@ -183,10 +245,10 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
                         <option value="">-- Selecciona un plato --</option>
                         {availableDishes.map(dish => (
                             <option key={dish.id} value={dish.id}>
-                                {dish.nombre} (${dish.precio.toFixed(2)})
+                                {dish.name} (${dish.price.toFixed(2)})
                             </option>
                         ))}
-                    </select>
+                    </select> */}
                 </div>
                 <div className="w-full sm:w-auto">
                     <label htmlFor="dishQuantity" className="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
@@ -210,6 +272,34 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
                 </Button>
             </div>
 
+                <div className="mt-6 border border-gray-200 rounded-md overflow-hidden shadow-sm overflow-x-auto"> 
+                    <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-2/5">Plato</th>
+                                <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Descripcion</th>
+                                <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Precio Unitario</th>
+                            </tr>
+                        </thead>
+                        {filteredData.length > 0 && (
+                        <tbody className="divide-y divide-gray-200">
+                            {filteredData.map((item) => (
+                                <tr 
+                                    key={item.id} 
+                                    onClick={()=>setCurrentDishIdToAdd(item.id)}
+                                    className={`transition-colors hover:bg-gray-100 ${currentDishIdToAdd === item.id? 'bg-blue-100' : 'bg-white'} cursor-pointer`}
+                                >
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</td>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.description}</td>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.price.toFixed(2)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        )}
+                    </table>
+                </div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 border-b pb-2 mb-4">Platos del Pedido</h3>
+
             {/* Lista de Platos Seleccionados */}
             {selectedItems.length > 0 && (
                 <div className="mt-6 border border-gray-200 rounded-md overflow-hidden shadow-sm overflow-x-auto"> 
@@ -224,15 +314,15 @@ const OrderForm: React.FC<OrderFormProps> = ({ availableDishes, onSave, onCancel
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {selectedItems.map((item, index) => (
-                                <tr key={item.plato_id}>
-                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.nombre_plato}</td>
-                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.cantidad}</td>
-                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.precio_unitario.toFixed(2)}</td>
-                                    <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.cantidad * item.precio_unitario).toFixed(2)}</td>
+                            {selectedItems.map((item) => (
+                                <tr key={item.dish.id}>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.dish.name}</td>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td>
                                     <td className="px-4 py-2 text-center whitespace-nowrap">
                                         <Button
-                                            onClick={() => handleRemoveItem(item.plato_id)}
+                                            onClick={() => handleRemoveItem(item.dish.id)}
                                             type="button"
                                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs rounded-md shadow-sm transition-all duration-200 ease-in-out"
                                             disabled={isLoading}

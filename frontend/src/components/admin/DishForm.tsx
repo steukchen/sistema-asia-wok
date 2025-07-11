@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Button from '../ui/button'; // Importa tu componente Button
-import {DishFormData} from '../../types'
+import {DishFormData,TipoPlato} from '../../types'
 
 interface DishFormProps {
     initialData?: DishFormData | null;
@@ -13,36 +13,52 @@ interface DishFormProps {
 const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLoading }) => {
     // Estado del formulario
     const [formData, setFormData] = useState<DishFormData>({
-        nombre: '',
-        descripcion: '',
-        precio: 0,
-        categoria: '',
-        is_active: true,
+        name: '',
+        description: '',
+        price: 0,
+        type_id: 1,
+        status: true,
     });
     const [formError, setFormError] = useState<string | null>(null);
+    const [dishTypes,setDishTypes] = useState<[TipoPlato] | null>(null);
 
     // Efecto para precargar los datos si se está editando un plato
     useEffect(() => {
         if (initialData) {
             setFormData({
-                nombre: initialData.nombre,
-                descripcion: initialData.descripcion,
-                precio: initialData.precio,
-                categoria: initialData.categoria,
-                is_active: initialData.is_active,
+                name: initialData.name,
+                description: initialData.description,
+                price: initialData.price,
+                type_id: initialData.type_id,
+                status: initialData.status,
             });
         } else {
             // Reinicia el formulario para creación
             setFormData({
-                nombre: '',
-                descripcion: '',
-                precio: 0,
-                categoria: '',
-                is_active: true,
+                name: '',
+                description: '',
+                price: 0,
+                type_id: 1,
+                status: true,
             });
         }
         setFormError(null); // Limpia errores al cambiar de modo
     }, [initialData]);
+
+    useEffect(() =>{
+        const params = new URLSearchParams({
+                url: `/dishes_types/get_dishes_types`
+            });
+        fetch("/api/get?"+params,{
+            method:"GET"
+        })
+        .then(response=>response.json())
+        .then(data=>{
+            setDishTypes(data)
+        }).catch(rej=>{
+            setFormError("Error al cargar los tipos de platos: "+rej)
+        })
+    },[])
 
     // Manejador de cambios en los inputs
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -62,7 +78,7 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
         setFormError(null);
 
         // Validaciones básicas del lado del cliente
-        if (!formData.nombre || !formData.descripcion || !formData.categoria || formData.precio <= 0) {
+        if (!formData.name || !formData.description || formData.type_id <=0 || formData.price <= 0) {
             setFormError('Todos los campos obligatorios deben ser llenados y el precio debe ser positivo.');
             return;
         }
@@ -83,12 +99,12 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
 
             {/* Campo Nombre */}
             <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Plato</label>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Plato</label>
                 <input
                     type="text"
-                    id="nombre"
-                    name="nombre"
-                    value={formData.nombre}
+                    id="name"
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
                     className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     required
@@ -97,11 +113,11 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
 
             {/* Campo Descripción */}
             <div>
-                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                 <textarea
-                    id="descripcion"
-                    name="descripcion"
-                    value={formData.descripcion}
+                    id="description"
+                    name="description"
+                    value={formData.description}
                     onChange={handleChange}
                     rows={3}
                     className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -111,12 +127,12 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
 
             {/* Campo Precio */}
             <div>
-                <label htmlFor="precio" className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
                 <input
                     type="number"
-                    id="precio"
-                    name="precio"
-                    value={formData.precio}
+                    id="price"
+                    name="price"
+                    value={formData.price}
                     onChange={handleChange}
                     step="0.01" // Permite decimales para el precio
                     className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -127,29 +143,36 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
 
             {/* Campo Categoría */}
             <div>
-                <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                <input
-                    type="text"
-                    id="categoria"
-                    name="categoria"
-                    value={formData.categoria}
+                <label htmlFor="type_id" className="block text-sm font-medium text-gray-700 mb-1" >
+                    Tipo de Plato
+                </label>
+                <select
+                    id="type_id"
+                    name="type_id"
+                    value={formData.type_id}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                     required
-                />
+                >
+                    {
+                        dishTypes?.map(dishType=>(
+                            <option value={dishType.id} key={dishType.id}>{dishType.name}</option>
+                        ))
+                    }
+                </select>
             </div>
 
             {/* Campo Activo */}
             <div className="flex items-center">
                 <input
                     type="checkbox"
-                    id="is_active"
-                    name="is_active"
-                    checked={formData.is_active}
+                    id="status"
+                    name="status"
+                    checked={formData.status}
                     onChange={handleChange}
                     className="h-4 w-4 text-[#FB3D01] border-gray-300 rounded focus:ring-[#FB3D01]"
                 />
-                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="status" className="ml-2 block text-sm text-gray-900">
                     Activo
                 </label>
             </div>

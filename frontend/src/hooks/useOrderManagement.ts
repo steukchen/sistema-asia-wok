@@ -3,21 +3,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../app/providers/providers';
 // Importar desde el nuevo archivo de tipos
-import { Order, OrderStatus, OrderCreationFormData, OrderUpdateFormData } from '../types'; 
+import { Order, OrderStatus, OrderCreationFormData, OrderUpdateFormData, OrderWithDishes } from '../types'; 
 
 export const useOrderManagement = () => {
-    const { token } = useAuth();
-    const API_BASE_URL = 'http://localhost:8000';
-
+    const { user } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState<boolean>(false);
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<OrderWithDishes | null>(null);
 
     // Función para cargar los pedidos desde el backend
     const fetchOrders = useCallback(async () => {
-        if (!token) {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             setLoading(false);
             return;
@@ -26,12 +24,11 @@ export const useOrderManagement = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}/pedidos/`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+            const params = new URLSearchParams({
+                url: `/orders/get_orders`
+            });
+            const response = await fetch(`/api/get?`+params, {
+                method: 'GET'
             });
 
             if (!response.ok) {
@@ -46,13 +43,16 @@ export const useOrderManagement = () => {
 
             const data: Order[] = await response.json();
             setOrders(data);
-        } catch (err: any) {
+        } catch (err) {
             console.error("Error fetching orders:", err);
-            setError(err.message || 'Error desconocido al cargar pedidos.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al cargar datos.');
+            }
+            
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, [user]);
 
     // Carga los pedidos al montar el componente que usa este hook
     useEffect(() => {
@@ -61,21 +61,27 @@ export const useOrderManagement = () => {
 
     // Función para crear un nuevo pedido
     const handleCreateOrder = useCallback(async (orderData: OrderCreationFormData) => {
-        if (!token) {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             return;
         }
-
+        const body = {
+            "table_id": orderData.table_id,
+            "dishes": orderData.dishes.map(dish=>([dish.dish_id,dish.quantity]))
+        }
+        console.log(body)
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}/pedidos/`, {
+            const params = new URLSearchParams({
+                url: `/orders/create_order`
+            });
+            const response = await fetch(`/api/post?`+params, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(orderData),
+                body: JSON.stringify(body),
             });
 
             if (!response.ok) {
@@ -86,18 +92,20 @@ export const useOrderManagement = () => {
             const newOrder: Order = await response.json();
             setOrders((prevOrders) => [newOrder, ...prevOrders]); 
             return newOrder;
-        } catch (err: any) {
+        } catch (err) {
             console.error("Error creating order:", err);
-            setError(err.message || 'Error desconocido al crear pedido.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al crear pedido.');
+            }
             throw err;
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, [user]);
 
     // ¡NUEVA FUNCIÓN! Función para actualizar un pedido existente
     const updateOrder = useCallback(async (orderId: number, orderData: OrderUpdateFormData) => {
-        if (!token) {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             throw new Error('No autenticado.');
         }
@@ -105,13 +113,65 @@ export const useOrderManagement = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}/pedidos/${orderId}`, {
+            const params = new URLSearchParams({
+                url: `/orders/update_dishes/${orderId}`
+            });
+            const body = {
+                "table_id": orderData.table_id,
+                "dishes": orderData.dishes?.map(dish=>([dish.dish_id,dish.quantity]))
+            }
+            const response = await fetch(`/api/post?`+params, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(orderData),
+                body: JSON.stringify(body),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Error al actualizar el pedido.');
+            }
+
+            const updatedOrder: OrderWithDishes = await response.json();
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order.id === orderId ? updatedOrder : order
+                )
+            );
+            // Si el pedido seleccionado es el que se actualizó, actualízalo también
+            if (selectedOrder && selectedOrder.id === orderId) {
+                setSelectedOrder(updatedOrder); 
+            }
+            return updatedOrder;
+        } catch (err) {
+            console.error("Error updating order:", err);
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al actualizar pedido.');
+            }
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, [ selectedOrder,user]); // Añadido selectedOrder a las dependencias
+
+    // Función para manejar la actualización del estado de un pedido (simplificada, ya que updateOrder puede hacer esto)
+    // Se mantiene para compatibilidad con OrderDetailsModal si no se quiere refactorizarlo inmediatamente
+    const handleUpdateOrderStatus = useCallback(async (orderId: number, newStatus: OrderStatus) => {
+        console.log(orderId,newStatus)
+        try {
+            const params = new URLSearchParams({
+                url: `/orders/update_order/${orderId}`
+            });
+            const body = {
+                "state": newStatus.toLowerCase()
+            }
+            const response = await fetch(`/api/post?`+params, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
             });
 
             if (!response.ok) {
@@ -125,36 +185,23 @@ export const useOrderManagement = () => {
                     order.id === orderId ? updatedOrder : order
                 )
             );
-            // Si el pedido seleccionado es el que se actualizó, actualízalo también
-            if (selectedOrder && selectedOrder.id === orderId) {
-                setSelectedOrder(updatedOrder); 
-            }
             return updatedOrder;
-        } catch (err: any) {
+
+        } catch (err) {
             console.error("Error updating order:", err);
-            setError(err.message || 'Error desconocido al actualizar pedido.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al actualizar pedido.');
+            }
             throw err;
         } finally {
             setLoading(false);
         }
-    }, [token, selectedOrder]); // Añadido selectedOrder a las dependencias
-
-    // Función para manejar la actualización del estado de un pedido (simplificada, ya que updateOrder puede hacer esto)
-    // Se mantiene para compatibilidad con OrderDetailsModal si no se quiere refactorizarlo inmediatamente
-    const handleUpdateOrderStatus = useCallback(async (orderId: number, newStatus: OrderStatus) => {
-        // Reutilizamos la nueva función updateOrder
-        try {
-            await updateOrder(orderId, { estado: newStatus });
-        } catch (err) {
-            console.error("Error updating order status via handleUpdateOrderStatus:", err);
-            setError((err as Error).message || 'Error desconocido al actualizar estado.');
-        }
-    }, [updateOrder]); // Depende de la nueva función updateOrder
+    }, []); // Depende de la nueva función updateOrder
 
 
     // Función para manejar la eliminación de un pedido
     const handleDeleteOrder = useCallback(async (orderId: number) => {
-        if (!token) {
+        if (!user) {
             setError('No autenticado. Por favor, inicia sesión.');
             return;
         }
@@ -166,11 +213,11 @@ export const useOrderManagement = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}/pedidos/${orderId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
+            const params = new URLSearchParams({
+                url: `/orders/delete_order/${orderId}`
+            });
+            const response = await fetch(`/api/delete?`+params, {
+                method: 'DELETE'
             });
 
             if (!response.ok) {
@@ -185,17 +232,48 @@ export const useOrderManagement = () => {
                 setShowDetailsModal(false);
                 setSelectedOrder(null);
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error("Error deleting order:", err);
-            setError(err.message || 'Error desconocido al eliminar pedido.');
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al eliminar pedido.');
+            }
         } finally {
             setLoading(false);
         }
-    }, [token, selectedOrder]);
+    }, [ selectedOrder,user]);
 
     // Función para abrir el modal de detalles de un pedido
-    const handleViewOrderDetails = useCallback((order: Order) => {
-        setSelectedOrder(order);
+    const handleViewOrderDetails = useCallback(async (order: Order) => {
+        setError(null);
+        try {
+            const params = new URLSearchParams({
+                url: `/orders/get_order_dishes/`+order.id
+            });
+            const response = await fetch(`/api/get?`+params, {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (response.status === 404 && errorData.detail === "No se encontro la orden.") {
+                    setError(null);
+                    return;
+                }
+                throw new Error(errorData.detail || 'Error al cargar platos.');
+            }
+
+            const data: OrderWithDishes = await response.json();
+            setSelectedOrder(data);
+
+        } catch (err) {
+            console.error("Error fetching orders:", err);
+            if (err instanceof Error){
+                setError(err.message || 'Error desconocido al cargar datos.');
+            }
+            
+        } finally {
+            setLoading(false);
+        }
         setShowDetailsModal(true);
     }, []);
 

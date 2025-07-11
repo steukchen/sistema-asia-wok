@@ -59,10 +59,10 @@ const DishTable: React.FC<DishTableProps> = ({ items: platos, onEdit, onDelete }
                 <tbody className="divide-y divide-gray-200">
                     {platos.map((plato) => {
                         const isExpanded = expandedDescriptions.has(plato.id);
-                        const showToggle = plato.descripcion.length > MAX_DESCRIPTION_LENGTH;
+                        const showToggle = plato.description.length > MAX_DESCRIPTION_LENGTH;
                         const displayedDescription = isExpanded
-                            ? plato.descripcion
-                            : plato.descripcion.slice(0, MAX_DESCRIPTION_LENGTH) + (showToggle ? '...' : '');
+                            ? plato.description
+                            : plato.description.slice(0, MAX_DESCRIPTION_LENGTH) + (showToggle ? '...' : '');
 
                         return (
                             <tr key={plato.id}>
@@ -71,7 +71,7 @@ const DishTable: React.FC<DishTableProps> = ({ items: platos, onEdit, onDelete }
                                     {plato.id}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 text-sm sm:text-base text-gray-700">
-                                    {plato.nombre}
+                                    {plato.name}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 text-sm sm:text-base text-gray-700 align-top">
                                     {displayedDescription}
@@ -86,14 +86,14 @@ const DishTable: React.FC<DishTableProps> = ({ items: platos, onEdit, onDelete }
                                     )}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-700">
-                                    ${plato.precio.toFixed(2)}
+                                    ${plato.price.toFixed(2)}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-700 capitalize">
-                                    {plato.categoria}
+                                    {plato.type.name}
                                 </td>
                                 <td className="px-8 py-2 sm:py-4 whitespace-nowrap text-sm sm:text-base">
-                                    <span className={`px-2 inline-flex text-xs leading-6 font-semibold rounded-full ${plato.is_active ? 'bg-green-300 text-green-800' : 'bg-red-300 text-red-800'}`}>
-                                        {plato.is_active ? 'Sí' : 'No'}
+                                    <span className={`px-2 inline-flex text-xs leading-6 font-semibold rounded-full ${plato.status ? 'bg-green-300 text-green-800' : 'bg-red-300 text-red-800'}`}>
+                                        {plato.status ? 'Sí' : 'No'}
                                     </span>
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm sm:text-base font-medium">

@@ -3,12 +3,12 @@
 import React from 'react';
 import Modal from '../ui/modal';
 import Button from '../ui/button';
-import { Order, OrderStatus, OrderItem } from '../../types';
+import { OrderStatus, OrderItem, OrderWithDishes } from '../../types';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    order: Order | null;
+    order: OrderWithDishes | null;
     onUpdateStatus: (orderId: number, newStatus: OrderStatus) => void;
     isLoading: boolean;
 }
@@ -21,9 +21,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     // Función auxiliar para obtener el color del estado
     const getStatusClasses = (status: OrderStatus) => {
         switch (status) {
-            case 'pendiente':
+            case 'pending':
                 return 'bg-blue-100 text-blue-800';
-            case 'listo':
+            case 'completed':
                 return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
@@ -31,7 +31,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     };
 
     // Opciones de estado para el select
-    const statusOptions: OrderStatus[] = ['pendiente', 'listo'];
+    const statusOptions: OrderStatus[] = ['pending', 'completed'];
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Detalles del Pedido #${order.id}`}>
@@ -39,21 +39,21 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 {/* Información del Pedido */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p><strong className="font-semibold">Mesa:</strong> {order.numero_mesa}</p>
-                        <p><strong className="font-semibold">Fecha Pedido:</strong> {new Date(order.fecha_creacion).toLocaleString()}</p>
-                        <p><strong className="font-semibold">Última Actualización:</strong> {new Date(order.fecha_actualizacion).toLocaleString()}</p>
-                        <p><strong className="font-semibold">Total:</strong> ${order.total.toFixed(2)}</p>
+                        <p><strong className="font-semibold">Mesa:</strong> {order.table_id}</p>
+                        <p><strong className="font-semibold">Fecha Pedido:</strong> {new Date(order.order_date).toLocaleString()}</p>
+                        {/* <p><strong className="font-semibold">Última Actualización:</strong> {new Date(order.fecha_actualizacion).toLocaleString()}</p> */}
+                        {/* <p><strong className="font-semibold">Total:</strong> ${order.total.toFixed(2)}</p> */}
                     </div>
                     <div>
                         <p>
                             <strong className="font-semibold">Estado:</strong>
-                            <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(order.estado)}`}>
-                                {order.estado.replace(/_/g, ' ')}
+                            <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(order.state)}`}>
+                                {order.state.replace(/_/g, ' ')}
                             </span>
                         </p>
-                        {order.notas && (
+                        {/* {order.notas && (
                             <p><strong className="font-semibold">Notas:</strong> {order.notas}</p>
-                        )}
+                        )} */}
                     </div>
                 </div>
 
@@ -63,7 +63,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                     <div className="flex items-center space-x-2">
                         <select
                             id="order-status"
-                            value={order.estado}
+                            value={order.state}
                             onChange={(e) => onUpdateStatus(order.id, e.target.value as OrderStatus)}
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 text-sm sm:text-base transition-all duration-200 ease-in-out"
                             disabled={isLoading}
@@ -80,7 +80,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
                 {/* Detalles de los Ítems del Pedido */}
                 <h4 className="font-bold text-lg sm:text-xl mt-6 mb-2">Ítems del Pedido:</h4>
-                {(!order.items || order.items.length === 0) ? (
+                {(!order.dishes || order.dishes.length === 0) ? (
                     <p className="text-gray-500">No hay ítems en este pedido.</p>
                 ) : (
                     <div className="overflow-x-auto border border-gray-200 rounded-md shadow-sm">
@@ -94,12 +94,12 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {order.items.map((item: OrderItem, index: number) => (
+                                {order.dishes.map((item: OrderItem, index: number) => (
                                     <tr key={index}>
-                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.plato.nombre}</td>
-                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.cantidad}</td>
-                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.plato.precio.toFixed(2)}</td>
-                                        <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.cantidad * item.plato.precio).toFixed(2)}</td>
+                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.dish.name}</td>
+                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
+                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
+                                        <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>

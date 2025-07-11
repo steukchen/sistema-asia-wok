@@ -1,6 +1,5 @@
 'use client';
 import { useAuth } from '../../app/providers/providers';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { lusitana } from '../../components/font';
@@ -8,7 +7,6 @@ import Button from '../ui/button'
 
 export default function Navbar() {
     const { user, logout } = useAuth();
-    const router = useRouter();
 
     if (!user) return null;
 
@@ -17,7 +15,7 @@ export default function Navbar() {
             <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 px-4">
                 {/* Sección izquierda: Logo y Título */}
                 <div className="flex items-center space-x-3">
-                    <Link href={`/${user.role}/dashboard`} className="flex items-center space-x-2">
+                    <Link href={`/${user.rol}/dashboard`} className="flex items-center space-x-2">
                         {/* Logo pequeño */}
                         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-700">
                             <Image
@@ -34,7 +32,7 @@ export default function Navbar() {
                     </Link>
                     {/* Rol del usuario */}
                     <span className="text-gray-300 text-sm sm:text-base font-medium capitalize">
-                        ({user.role})
+                        ({user.rol})
                     </span>
                 </div>
 
