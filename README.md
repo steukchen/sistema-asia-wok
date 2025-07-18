@@ -13,15 +13,13 @@
 2. Instala las dependencias
 
 ```bash
-    cd frontend
-    npm install
-    cd ..
+    pnpm i
 ```
 
 ### Ejecuta la aplicacion
 
 ```bash
-    python -m run_frontend.py
+    pnpm dev
 ```
 
 ```bash
