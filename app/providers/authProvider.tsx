@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         if (response.ok) {
             setUser(null);
+            setWsToken("")
             router.push("/");
             router.refresh()
         }
@@ -40,8 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             const userData: DataResponse = await userResponse.json();
 
+            setWsToken(userData.ws_token);
             setUser(userData.user_data);
-            setWsToken(userData.ws_token)
         } catch (err) {
             console.log("Error de validacion: ", err);
             logout()

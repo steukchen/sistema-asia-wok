@@ -8,6 +8,7 @@ import OrderForm from "@/app/components/ui/dashboard/orders/orderForm";
 import { useNotification } from "@/app/providers/notificationProvider";
 import OrderDetailsModal from "@/app/components/ui/dashboard/orders/orderDetailsModal";
 import { useWebSocket } from "@/app/hooks/ws";
+import { connect } from 'http2';
 
 export default function OrderSection() {
     const [showForm, setShowForm] = useState(false);
@@ -16,7 +17,7 @@ export default function OrderSection() {
     const [selectedOrder,setSelectedOrder] = useState<OrderWithDishes | null>(null);
     const [showDetailsModal,setShowDetailsModal] = useState(false);
     const {showNotification} = useNotification();
-    const {sendMessage,messages,isConnected,closeSocket} = useWebSocket()
+    const {sendMessage,messages,isConnected,closeSocket,connect} = useWebSocket()
 
 
     const { 
@@ -34,6 +35,9 @@ export default function OrderSection() {
 
     useEffect(() => {
         get("",{url:`/orders/get_orders`})
+        if (!isConnected){
+            connect()
+        }
         return ()=>{
             console.log(isConnected)
             if (isConnected){

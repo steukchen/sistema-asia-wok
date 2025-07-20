@@ -34,6 +34,7 @@ export const useWebSocket = (
 
     const connect = useCallback(() => {
         if (!wsToken) {
+            console.log("epa")
             setError('No authentication token provided');
             return;
         }
@@ -130,6 +131,7 @@ export const useWebSocket = (
         isConnected,
         messages,
         error,
+        connect,
         sendMessage,
         closeSocket
     };

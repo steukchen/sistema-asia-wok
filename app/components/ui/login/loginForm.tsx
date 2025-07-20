@@ -9,7 +9,7 @@ export default function LoginForm() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const { setUser } = useAuth();
+    const { setUser,setWsToken } = useAuth();
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -29,8 +29,9 @@ export default function LoginForm() {
                 const dataError = await response.json();
                 throw dataError;
             }
-            const user: User = await response.json();
-            await setUser(user);
+            const user: DataResponse = await response.json();
+            await setUser(user.user_data);
+            await setWsToken(user.ws_token)
             router.push("/dashboard");
         } catch (err) {
             console.log("Error durante el login:", err);

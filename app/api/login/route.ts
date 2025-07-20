@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         }
         const userData: DataResponse = await userResponse.json();
 
-        const response = NextResponse.json(userData.user_data, { status: 200 });
+        const response = NextResponse.json({user_data:userData.user_data,ws_token:userData.ws_token}, { status: 200 });
 
         response.cookies.set({
             name: "access_token",
