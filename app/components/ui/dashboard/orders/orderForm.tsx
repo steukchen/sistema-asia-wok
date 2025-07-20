@@ -16,6 +16,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
     const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]); 
     const [items,setItems] = useState<OrderItem[]>([]); 
     const [availableDishes,setAvailableDishes] = useState<Dish[] | null>(null)
+    const [loading,setLoading] = useState(false)
 
 
     const [currentDishIdToAdd, setCurrentDishIdToAdd] = useState<number | 0>(0);
@@ -27,6 +28,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
 
     useEffect(() => {
         if (initialData) {
+            setLoading(true)
             const params = new URLSearchParams({
                 url: `/orders/get_order_dishes/`+initialData.id
             });
@@ -44,16 +46,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                     quantity: item.quantity
                 })));
                 
-            })
+            }).finally(()=>setLoading(false))
             setNotes(initialData.notes?.split("\n-----")[0] || '');
         } else {
             seTableId(1);
             setNotes('');
             setSelectedItems([]);
         }
+        
     }, [initialData]); 
 
     useEffect(() =>{
+        setLoading(true)
         closeNotification()
         const params = new URLSearchParams({
                 url: `/tables/get_tables`
@@ -79,7 +83,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             setAvailableDishes(data)
         }).catch(rej=>{
             showNotification({message:"Error al cargar los platos: "+rej,type:"error"})
-        })
+        }).finally(()=>setLoading(false))
     },[])
 
 
@@ -200,6 +204,14 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
         }
     };
 
+    if (loading) return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
+                    Cargando...
+                </p>
+            </div>
+    );
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
             {/* Sección de Datos del Pedido (Número de Mesa) */}
@@ -235,14 +247,14 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             </div>
             
 
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-2 mb-4">Buscar Platos</h3>
+            {initialData?.state != "made" && initialData?.state != "completed" &&(<><h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-2 mb-4">Buscar Platos</h3>
             {/* Sección de Platos del Pedido */}
             <DishTableForm 
                 dishes={availableDishes}
                 handleAddItem={handleAddItem}
                 setCurrentDishIdToAdd={setCurrentDishIdToAdd}
                 currentDishIdToAdd={currentDishIdToAdd}
-            />
+            /></>)}
 
             
             <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-2 mb-4">Platos del Pedido</h3>

@@ -20,6 +20,7 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
     });
     const [dishTypes,setDishTypes] = useState<[DishType] | null>(null);
     const {showNotification, closeNotification} = useNotification()
+    const [loading,setLoading] = useState(false)
 
     // Efecto para precargar los datos si se está editando un plato
     useEffect(() => {
@@ -43,6 +44,7 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
 
     useEffect(() =>{
         closeNotification()
+        setLoading(true)
         const params = new URLSearchParams({
                 url: `/dishes_types/get_dishes_types`
             });
@@ -54,7 +56,7 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
             setDishTypes(data)
         }).catch(rej=>{
             showNotification({message:"Error al cargar los tipos de platos: "+rej,type:"error"})
-        })
+        }).finally(()=>setLoading(false))
     },[])
 
     // Manejador de cambios en los inputs
@@ -68,19 +70,29 @@ const DishForm: React.FC<DishFormProps> = ({ initialData, onSave, onCancel, isLo
     };
 
     // Manejador de envío del formulario
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         closeNotification();
-
+        setLoading(true)
         // Validaciones básicas del lado del cliente
         if (!formData.name || !formData.description || formData.type_id <=0 || formData.price <= 0) {
             showNotification({message:'Todos los campos obligatorios deben ser llenados y el precio debe ser positivo.',type:"error"});
+            setLoading(false)
             return;
         }
 
-        onSave(formData,{url:initialData ? "/dishes/update_dish/"+initialData.id:"/dishes/create_dish"});
-
+        await onSave(formData,{url:initialData ? "/dishes/update_dish/"+initialData.id:"/dishes/create_dish"});
+        setLoading(false)
     };
+
+    if (loading) return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
+                    Cargando...
+                </p>
+            </div>
+    );
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">

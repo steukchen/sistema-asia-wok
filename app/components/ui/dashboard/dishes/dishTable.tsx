@@ -125,7 +125,11 @@ const DishTable: React.FC<UserTableProps> = ({
                                     {dish.name}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    {dish.description}
+                                    {dish.description.split('\n').map((line, index) => (
+                                        <span key={index}>
+                                            {line}
+                                            <br />
+                                        </span>))}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">
                                     {dish.price}
