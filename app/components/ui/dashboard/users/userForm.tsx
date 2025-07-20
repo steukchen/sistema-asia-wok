@@ -12,9 +12,10 @@ interface UserFormProps {
     isLoading: boolean;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLoading }) => {
+const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel}) => {
     const {user,setUser} = useAuth()
     const router = useRouter()
+    const [loading,setLoading] = useState(false)
     const [formData, setFormData] = useState<UserFormData>({
         email: "",
         username: "",
@@ -51,6 +52,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
 
     // Manejador de envío del formulario
     const handleSubmit = async (e: React.FormEvent) => {
+        setLoading(true)
         e.preventDefault();
         closeNotification();
         // Validaciones básicas del lado del cliente
@@ -59,21 +61,25 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                 message: "Todos los campos obligatorios deben ser llenados.",
                 type: "error",
             });
+            setLoading(false)
             return;
         }
-        if (!initialData && !formData.password) {
+        if (formData.username.length <=3 || formData.username.includes(" ")){
+            showNotification({
+                message: "El nombre de usuario debe tener minimo 4 caracteres y no puede contener espacios",
+                type: "error",
+            });
+            setLoading(false)
+            return;
+        }
+        const EMAIL_REGEX = /^(?!.*\+\d@)(?:[^@]+@[^@]+\.[^@]+)$/;
+        if (!EMAIL_REGEX.test(formData.email)){
             // Contraseña requerida solo al crear
             showNotification({
-                message: "La contraseña es requerida para nuevos usuarios.",
+                message: "Email Invalido",
                 type: "error",
             });
-            return;
-        }
-        if (formData.password && formData.password.length < 6) {
-            showNotification({
-                message: "La contraseña debe tener al menos 6 caracteres.",
-                type: "error",
-            });
+            setLoading(false)
             return;
         }
 
@@ -89,38 +95,35 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
             // Si se está editando un usuario existente
             if (formData.password) {
                 // Si el campo de contraseña NO está vacío, envíalo
-                if (formData.password.length < 6) {
+                const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+                if (!PASSWORD_REGEX.test(formData.password || "")) {
                     showNotification({
-                        message: "La contraseña debe tener al menos 6 caracteres.",
+                        message: "La contraseña debe tener al menos 8 caracteres, contener una mayuscula, una minuscula, un numero y un caracter especial",
                         type: "error",
                     });
+                    setLoading(false)
                     return;
                 }
                 payload.password = formData.password;
             } else {
-                // Si el campo de contraseña está vacío, NO lo incluyas en el payload.
                 delete payload.password;
             }
         } else {
-            // Si se está creando un nuevo usuario
-            if (!formData.password) {
-                // La contraseña es obligatoria para nuevos usuarios
-                showNotification({ message: "La contraseña es requerida.", type: "error" });
-                return;
-            }
-            if (formData.password.length < 6) {
+            const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+            if (!PASSWORD_REGEX.test(formData.password || "")) {
                 showNotification({
-                    message: "La contraseña debe tener al menos 6 caracteres.",
+                    message: "La contraseña debe tener al menos 8 caracteres, contener una mayuscula, una minuscula, un numero y un caracter especial",
                     type: "error",
                 });
+                setLoading(false)
                 return;
             }
             payload.password = formData.password;
         }
 
         // Llama a la función onSave pasada por props
-
         await onSave(payload,{url:initialData ? "/users/update_user/"+initialData.id:"/users/create_user"});
+
         if (initialData && payload){
             if (initialData.id == user?.id){
                 const dataUser: User = {
@@ -130,12 +133,21 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                     rol:payload.rol
                 } 
                 setUser(dataUser)
-            }
-            if (payload.rol != "admin"){
-                router.push("/dashboard")
+                if (payload.rol != "admin"){
+                    router.push("/dashboard")
+                }
             }
         }
+        setLoading(false)
     };
+
+    if (loading) return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
+                    Cargando...
+                </p>
+            </div>
+    );
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
@@ -221,20 +233,14 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                     type="button" // Importante: para que no envíe el formulario
                     onClick={onCancel}
                     className="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-md"
-                    disabled={isLoading}
                 >
                     Cancelar
                 </Button>
                 <Button
                     type="submit"
-                    isLoading={isLoading}
                     className="bg-[#FB3D01] hover:bg-[#E03A00] text-white px-4 py-2 rounded-md"
                 >
-                    {isLoading
-                        ? "Guardando..."
-                        : initialData
-                          ? "Actualizar Usuario"
-                          : "Crear Usuario"}
+                    {initialData ? "Actualizar Usuario" : "Crear Usuario"}
                 </Button>
             </div>
         </form>

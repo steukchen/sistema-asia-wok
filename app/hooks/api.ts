@@ -131,7 +131,7 @@ export function useApi<T extends ApiResource, C = Partial<T>>(config: ApiConfig<
                 });
 
                 if (response.status === 409) {
-                    throw new Error(`${config.resourceName} ya existe`);
+                    throw new Error(`Datos del ${config.resourceName} en uso.`);
                 }
 
                 if (!response.ok) {
