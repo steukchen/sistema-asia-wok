@@ -268,7 +268,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                                 <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Cantidad</th>
                                 <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Precio Unitario</th>
                                 <th className="px-4 py-2 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase">Subtotal</th>
-                                <th className="px-4 py-2 text-center text-xs sm:text-sm font-medium text-gray-500 uppercase min-w-[80px]">Acciones</th>
+                                {initialData?.state != "made" && initialData?.state != "completed" &&(<th className="px-4 py-2 text-center text-xs sm:text-sm font-medium text-gray-500 uppercase min-w-[80px]">Acciones</th>)}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -278,7 +278,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td>
-                                    <td className="px-4 py-2 text-center whitespace-nowrap">
+                                    {initialData?.state != "made" && initialData?.state != "completed" &&(<td className="px-4 py-2 text-center whitespace-nowrap">
                                         <Button
                                             onClick={() => handleRemoveItem(item.dish.id)}
                                             type="button"
@@ -286,7 +286,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                                         >
                                             Quitar
                                         </Button>
-                                    </td>
+                                    </td>)}
                                 </tr>
                             ))}
                         </tbody>
