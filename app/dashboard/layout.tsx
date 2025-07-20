@@ -16,6 +16,8 @@ export default function LayoutDashBoard({ children }: { children: React.ReactNod
             </div>
         );
 
+    const rol = user.rol == "cashier" ? "cajer@" : user.rol=="waiter" ? "mesero" : user.rol
+
     return (
         <>
             <Navbar />
@@ -26,7 +28,7 @@ export default function LayoutDashBoard({ children }: { children: React.ReactNod
                     <h1
                         className={`${lusitana.className} text-3xl sm:text-4xl font-bold text-[#FB3D01] mb-6 sm:mb-8 text-center md:text-left`}
                     >
-                        Bienvenido, {user!.username} ({user!.rol})
+                        Bienvenido, {user!.username} ({rol.toUpperCase()})
                     </h1>
                     <p className="text-gray-700 text-lg sm:text-xl mb-8 text-center md:text-left">
                         Gestiona tu restaurante de forma eficiente.

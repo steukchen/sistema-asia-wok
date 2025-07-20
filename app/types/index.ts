@@ -1,4 +1,4 @@
-type UserRole = "admin" | "waiter" | "chef" | "superadmin";
+type UserRole = "admin" | "waiter" | "chef" | "cashier";
 
 interface User {
     id: string;
@@ -41,7 +41,7 @@ interface DishFormData {
     type_id: number;
 }
 
-type OrderStatus = 'pending' | 'completed' | 'cancelled';
+type OrderStatus = 'pending' | 'preparing' | 'made' | 'completed' | 'cancelled';
 interface OrderItemCreation {
     dish_id: number;
     quantity: number;
@@ -65,7 +65,7 @@ interface Order {
 interface OrderCreationFormData {
     table_id: number;
     dishes: OrderItemCreation[]; 
-    // notas?: string;
+    notes?: string;
 }
 
 interface OrderWithDishes {
@@ -81,7 +81,7 @@ interface OrderWithDishes {
 interface OrderUpdateFormData {
     table_id?: number; 
     state?: OrderStatus; 
-    // notas?: string; 
+    notes?: string; 
     dishes?: OrderItemCreation[]; 
 }
 

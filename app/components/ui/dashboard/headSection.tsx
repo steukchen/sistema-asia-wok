@@ -1,5 +1,6 @@
 import { lusitana } from "@/app/components/fonts";
 import Button from "@/app/components/ui/button";
+import { useAuth } from "@/app/providers/authProvider";
 
 interface HeadSectionProps {
     loading: boolean;
@@ -16,6 +17,7 @@ export default function HeadSection({
     textButton,
     onClickButton,
 }: HeadSectionProps) {
+    const {user} = useAuth()
     return (
         <div className="bg-white w-full overflow-hidden">
             <h2
@@ -25,7 +27,7 @@ export default function HeadSection({
             </h2>
 
             {/* Botón para abrir el formulario de creación */}
-            <div className="mb-6 flex justify-end">
+            {user?.rol!="chef" && (<div className="mb-6 flex justify-end">
                 <Button
                     className="w-full px-6 py-3 bg-[#FB3D01] hover:bg-[#E03A00] text-white font-bold rounded-md"
                     type="button"
@@ -33,12 +35,12 @@ export default function HeadSection({
                 >
                     {textButton}
                 </Button>
-            </div>
+            </div>)}
 
             {/* Mensaje de carga o error */}
             {loading && (
                 <div className="flex items-center justify-center py-8">
-                    <p className="text-gray-600 text-lg">Cargando Usuarios...</p>
+                    <p className="text-gray-600 text-lg">Cargando...</p>
                 </div>
             )}
             {error && (

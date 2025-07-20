@@ -7,14 +7,17 @@ import OrderTable from "@/app/components/ui/dashboard/orders/orderTable";
 import OrderForm from "@/app/components/ui/dashboard/orders/orderForm";
 import { useNotification } from "@/app/providers/notificationProvider";
 import OrderDetailsModal from "@/app/components/ui/dashboard/orders/orderDetailsModal";
+import { useWebSocket } from "@/app/hooks/ws";
 
-export default function DishSection() {
+export default function OrderSection() {
     const [showForm, setShowForm] = useState(false);
     const [orders, setOrders] = useState<Order[] | null>(null);
     const [editOrder, setEditOrder] = useState<Order | null>(null);
     const [selectedOrder,setSelectedOrder] = useState<OrderWithDishes | null>(null);
     const [showDetailsModal,setShowDetailsModal] = useState(false);
     const {showNotification} = useNotification();
+    const {sendMessage,messages,isConnected,closeSocket} = useWebSocket()
+
 
     const { 
         state: { data, loading, error }, 
@@ -31,32 +34,52 @@ export default function DishSection() {
 
     useEffect(() => {
         get("",{url:`/orders/get_orders`})
-    }, []);
+        return ()=>{
+            console.log(isConnected)
+            if (isConnected){
+                closeSocket()
+            }
+        }
+    }, [isConnected]);
+    useEffect(()=>{
+        if (messages.at(-1)?.message == "UpdateOrder"){
+            get("",{url:`/orders/get_orders`})
+            setShowDetailsModal(false)
+        }
+    },[messages])
 
     useEffect(()=>{
-        if (data!=null){
-            if (data instanceof Array){
-                setOrders(data)
-            }
+        if (data instanceof Array){
+            setOrders(data)
+        }else{
+            setOrders(null)
         }
     },[data])
 
     const saveOrder = async (orderData: OrderCreationFormData | OrderUpdateFormData,params: Record<string,string>)=>{
         const data = editOrder ? await update(orderData,params) : await create(orderData,params)
         if (data){
+            await sendMessage({
+                message: "UpdateOrder"
+            })  
             setShowForm(false)
         }else setShowForm(true)
-        get("",{url:`/orders/get_orders`})
+        
     }
 
     const deleteOrder = async (params: Record<string,string>)=>{
         if(!confirm("¿Esta seguro de eliminar la orden?")) return
         await deleteItem(params);get("",{url:`/orders/get_orders`})
+        await sendMessage({
+            message: "UpdateOrder"
+        })
     }
 
     const onUpdateStatus = async (orderId: number,state: OrderStatus) =>{
         await update({state:state},{url:"/orders/update_order/"+orderId})
-        get("",{url:`/orders/get_orders`})
+        await sendMessage({
+            message: "UpdateOrder"
+        })
     }
 
     const handleViewOrderDetails = async (order: Order) => {
@@ -91,7 +114,7 @@ export default function DishSection() {
             <Modal
                 isOpen={showForm}
                 onClose={() => setShowForm(false)}
-                title={editOrder ? "Modificar Plato" : `Crear Nuevo Plato`}
+                title={editOrder ? "Modificar Orden" : `Crear Nueva Orden`}
             >
                 <OrderForm
                     onSave={saveOrder}
@@ -129,7 +152,7 @@ export default function DishSection() {
             />
 
             {!showForm && !loading && !orders && !error && (
-                <p className="text-gray-600 text-center py-8">No hay ordenes registradas.</p>
+                <p className="text-gray-600 text-center py-8">No hay ordenes para mostrar.</p>
             )}
         </div>
     );

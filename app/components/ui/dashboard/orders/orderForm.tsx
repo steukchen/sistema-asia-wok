@@ -45,7 +45,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                 })));
                 
             })
-            // setNotas(initialData.notas || '');
+            setNotes(initialData.notes?.split("\n-----")[0] || '');
         } else {
             seTableId(1);
             setNotes('');
@@ -162,14 +162,31 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                 dish_id: item.dish.id,
                 quantity: item.quantity,
             }));
+            let addNotes = ""
+            if (initialData.state == "preparing"){
+                addNotes+="\n-----"
+                for (let i of itemsToDeleted){
+                    addNotes+= "\n" + i.dish.name + " Borrado"
+                }
+                for (let i of itemsForBackend){
+                    let d = availableDishes?.find(d=>d.id==i.dish_id)
+                    if (!items.find(d=>d.dish.id==i.dish_id && d.quantity==i.quantity)){
+                        addNotes+= "\n" + d?.name +" Nueva Cantidad: "+i.quantity 
+                    }
+                }
+                addNotes = addNotes == "\n-----" ? "" : addNotes
+            }
+            let oldNotes = initialData.notes?.split("\n-----") || []
+            if (oldNotes.length >= 1){
+                if (addNotes == "") addNotes += "\n-----"
+                addNotes += oldNotes[1]
+            }
             itemsForBackend.push(...itemsData)
-            // Si estamos editando, creamos OrderUpdateFormData
             const orderData: OrderUpdateFormData = {
                 table_id: Number(tableId),
                 dishes: itemsForBackend,
-                // notas: notas || undefined,
+                notes: notes+addNotes || undefined,
             };
-            console.log(orderData)
             await onSave(orderData,{url:"/orders/update_order/"+initialData?.id});
             await onSave(orderData,{url:"/orders/update_dishes/"+initialData?.id});
         } else {
@@ -177,7 +194,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             const orderData: OrderCreationFormData = {
                 table_id: Number(tableId),
                 dishes: itemsForBackend,
-                // notas: notas || undefined,
+                notes: notes || undefined,
             };
             await onSave(orderData,{url:"/orders/create_order"});
         }
@@ -201,7 +218,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                 >
                     {
                         tables?.map(table=>(
-                            <option value={table.id} key={table.id}>{table.name}</option>
+                            <option value={table.id} key={table.id}>{table.id}</option>
                         ))
                     }
                 </select>
@@ -244,7 +261,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {selectedItems.map((item) => (
-                                <tr key={item.dish.id}>
+                                <tr key={item.dish.id} className='select-none'>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.dish.name}</td>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>

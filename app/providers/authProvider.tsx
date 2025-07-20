@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 
 interface AuthContextType {
     user: User | null;
+    wsToken: string;
+    setWsToken: (wsToken: string) =>void;
     setUser: (user: User) => void;
     logout: () => void;
 }
@@ -12,6 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [wsToken, setWsToken] = useState("");
     const router = useRouter();
 
     const logout = useCallback(async () => {
@@ -21,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (response.ok) {
             setUser(null);
             router.push("/");
+            router.refresh()
         }
     }, [router]);
 
@@ -34,11 +38,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 throw new Error("Error al obtener la información del usuario");
             }
 
-            const userData: User = await userResponse.json();
+            const userData: DataResponse = await userResponse.json();
 
-            setUser(userData);
+            setUser(userData.user_data);
+            setWsToken(userData.ws_token)
         } catch (err) {
             console.log("Error de validacion: ", err);
+            logout()
         }
     }, []);
 
@@ -52,6 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const contextValue: AuthContextType = {
         user,
+        wsToken,
+        setWsToken,
         setUser,
         logout,
     };

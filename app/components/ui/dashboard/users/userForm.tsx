@@ -131,7 +131,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                 } 
                 setUser(dataUser)
             }
-            if (payload.rol != "superadmin"){
+            if (payload.rol != "admin"){
                 router.push("/dashboard")
             }
         }
@@ -208,9 +208,9 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, isLo
                     className="w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                     required
                 >
-                    <option value="superadmin">SuperAdmin</option>
                     <option value="admin">Admin</option>
-                    <option value="waiter">Waiter</option>
+                    <option value="cashier">Cajero</option>
+                    <option value="waiter">Mesero</option>
                     <option value="chef">Chef</option>
                 </select>
             </div>

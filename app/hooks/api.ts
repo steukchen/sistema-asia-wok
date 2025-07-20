@@ -87,6 +87,14 @@ export function useApi<T extends ApiResource, C = Partial<T>>(config: ApiConfig<
                 const response = await fetch(url);
 
                 if (!response.ok) {
+                    if (response.status ==404){
+                        setState({
+                            data: null,
+                            loading: false,
+                            error: null,
+                        });
+                        return
+                    }
                     throw new Error(`Error ${response.status}: ${await response.text}`);
                 }
 

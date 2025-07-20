@@ -1,6 +1,7 @@
 'use client';
-import React from 'react';
+import React, { use } from 'react';
 import Button from '../../button';
+import { useAuth } from '@/app/providers/authProvider';
 
 interface OrderTableProps {
     items: Order[]; 
@@ -18,12 +19,17 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                 return 'bg-blue-100 text-blue-800';
             case 'completed':
                 return 'bg-red-100 text-red-800';
+            case 'preparing':
+                return 'bg-yellow-100 text-yellow-800'
+            case 'made':
+                return 'bg-green-100 text-green-800'
             default:
                 return 'bg-gray-100 text-gray-800';
         }
     };
 
-    const statusOptions: OrderStatus[] = ['pending', 'completed'];
+    const {user} = useAuth()
+    const statusOptions: OrderStatus[] = user?.rol != "chef" ? ['pending','preparing','made','completed'] : ['pending','preparing'];
 
     return (
         <div className="overflow-x-auto w-full min-w-0 bg-white rounded-lg shadow-md border border-gray-200">
@@ -82,9 +88,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                 </td>
                                 {/* Acciones */}
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm sm:text-base font-medium">
-                                    <div className="flex flex-col sm:flex-row justify-end space-y-1 sm:space-y-0 sm:space-x-2">
-
+                                    <div className="flex flex-col sm:flex-row justify-center space-y-1 sm:space-y-0 sm:space-x-2">
                                         {/* ESTADO DEL PEDIDO (SELECT) */}
+                                        {user?.rol != "waiter" && user?.rol!="chef" && (
                                         <select
                                             value={order.state}
                                             onChange={(e) => onUpdateStatus(order.id, e.target.value as OrderStatus)}
@@ -95,8 +101,16 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                                     {status.replace(/_/g, ' ')}
                                                 </option>
                                             ))}
-                                        </select>
-
+                                        </select>)}
+                                        {user?.rol == "chef" && (
+                                            <Button
+                                                onClick={() => onUpdateStatus(order.id,order.state == "pending" ?"preparing" : "made")}
+                                                className={`${ order.state == "pending" ?"bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700" } text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out`}
+                                                type="button"
+                                            >
+                                                {order.state == "pending" ?"Preparando" : "Hecho"}
+                                            </Button>
+                                        )}
                                         {/* BOTÓN DE VER DETALLES */}
                                         <Button
                                             onClick={() => onViewDetails(order)}
@@ -107,22 +121,22 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                         </Button>
 
                                         {/* BOTÓN DE MODIFICAR */}
-                                        <Button
+                                        {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && (<Button
                                             onClick={() => onEditOrder(order)}
                                             className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
                                             type="button"
                                         >
                                             Modificar
-                                        </Button>
+                                        </Button>)}
 
                                         {/* BOTÓN DE ELIMINAR */}
-                                        <Button
+                                        {user?.rol != "waiter" && user?.rol!="chef" && (<Button
                                             onClick={() => onDelete({url:"/orders/delete_order/"+order.id})}
                                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
                                             type="button"
                                         >
                                             Eliminar
-                                        </Button>
+                                        </Button>)}
                                     </div>
                                 </td>
                             </tr>

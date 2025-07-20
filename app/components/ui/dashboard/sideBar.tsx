@@ -1,8 +1,9 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useState } from "react";
 import { lusitana } from "@/app/components/fonts";
+import { usePathname } from "next/navigation";
 
 type Sections = "users" | "dishes" | "orders" | "settings";
 
@@ -12,18 +13,21 @@ interface SideBarProps {
 
 const SideBar: React.FC<SideBarProps> = ({ userRole }) => {
     const navItems: { name: string; href: Sections; icon: string; roles: UserRole[] }[] = [
-        { name: "Gestión de Usuarios", href: "users", icon: "👤", roles: ["superadmin"] },
-        { name: "Gestión de Platos", href: "dishes", icon: "🍽️", roles: ["superadmin", "admin"] },
+        { name: "Gestión de Usuarios", href: "users", icon: "👤", roles: ["admin"] },
+        { name: "Gestión de Platos", href: "dishes", icon: "🍽️", roles: ["admin", "cashier"] },
         {
             name: "Gestión de Pedidos",
             href: "orders",
             icon: "📋",
-            roles: ["superadmin", "chef", "waiter", "admin"],
+            roles: ["admin", "chef", "waiter", "cashier"],
         },
-        { name: "Configuración Restaurante", href: "settings", icon: "⚙️", roles: ["superadmin"] },
+        { name: "Configuración Restaurante", href: "settings", icon: "⚙️", roles: ["admin"] },
     ];
-
+    const pathname = usePathname()
     const [activeSection, setActiveSection] = useState("");
+    useEffect(()=>{
+        setActiveSection(pathname.split("/")[2] || "")
+    },[pathname])
     return (
         <aside className="w-full md:w-64 bg-gray-800 text-white flex-shrink-1 py-8 px-5 rounded-lg shadow-xl md:mr-6 mb-6 md:mb-0">
             <h2
