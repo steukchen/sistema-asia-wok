@@ -70,7 +70,6 @@ export default function DishSection() {
                 <DishForm
                     onSave={saveDish}
                     onCancel={() => setShowForm(false)}
-                    isLoading={loading}
                     initialData={editDish ? editDish : null}
                 />
             </Modal>
