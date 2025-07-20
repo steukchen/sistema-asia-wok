@@ -19,5 +19,5 @@ export async function GET() {
     const data: DataResponse = await response.json();
     const user_data = data.user_data;
 
-    return NextResponse.json(user_data);
+    return NextResponse.json({"user_data":user_data,"ws_token":data.ws_token});
 }

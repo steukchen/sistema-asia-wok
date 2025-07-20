@@ -3,6 +3,7 @@
 import React from 'react';
 import Modal from '../modal';
 import Button from '../../button';
+import { useAuth } from '@/app/providers/authProvider';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -13,6 +14,7 @@ interface OrderDetailsModalProps {
 }
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order, onUpdateStatus,onEditOrder }) => {
+    const {user} = useAuth()
     if (!order) {
         return null;
     }
@@ -24,13 +26,18 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 return 'bg-blue-100 text-blue-800';
             case 'completed':
                 return 'bg-red-100 text-red-800';
+            case 'preparing':
+                return 'bg-yellow-100 text-yellow-800'
+            case 'made':
+                return 'bg-green-100 text-green-800'
             default:
                 return 'bg-gray-100 text-gray-800';
         }
     };
 
     // Opciones de estado para el select
-    const statusOptions: OrderStatus[] = ['pending', 'completed'];
+    const statusOptions: OrderStatus[] = user?.rol != "chef" ? ['pending','preparing','made','completed'] : ['pending','preparing'];
+
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Detalles del Pedido #${order.id}`}>
@@ -50,14 +57,20 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 {order.state.replace(/_/g, ' ')}
                             </span>
                         </p>
-                        {/* {order.notas && (
-                            <p><strong className="font-semibold">Notas:</strong> {order.notas}</p>
-                        )} */}
+                    </div>
+                    <div className='col-span-2'>
+                        <p><strong className="font-semibold wrap-break-word">Notas:</strong><br />{order.notes?.split('\n').map((line, index) => (
+                            <span key={index}>
+                                {line}
+                                <br />
+                            </span>
+                        ))}</p>
+                        
                     </div>
                 </div>
 
                 {/* Actualizar Estado del Pedido */}
-                <div className="mt-4">
+                {user?.rol != "waiter" && user?.rol !="chef" && (<div className="mt-4">
                     <label htmlFor="order-status" className="block text-sm font-medium text-gray-700 mb-1">Actualizar Estado:</label>
                     <div className="flex items-center space-x-2">
                         <select
@@ -73,7 +86,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                             ))}
                         </select>
                     </div>
-                </div>
+                </div>)}
 
                 {/* Detalles de los Ítems del Pedido */}
                 <h4 className="font-bold text-lg sm:text-xl mt-6 mb-2">Ítems del Pedido:</h4>
@@ -86,17 +99,17 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 <tr>
                                     <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-2/5">Plato</th>
                                     <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Cantidad</th>
-                                    <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Precio Unitario</th>
-                                    <th className="px-4 py-2 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Subtotal</th>
+                                    {user?.rol!="chef" && (<><th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Precio Unitario</th>
+                                    <th className="px-4 py-2 text-right text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Subtotal</th></>)}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {order.dishes.map((item: OrderItem, index: number) => (
-                                    <tr key={index}>
+                                    <tr key={index} className='select-none'>
                                         <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.dish.name}</td>
                                         <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
-                                        <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
-                                        <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td>
+                                        {user?.rol!="chef" && (<><td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
+                                        <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td></>)}
                                     </tr>
                                 ))}
                             </tbody>
@@ -108,13 +121,24 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
             {/* Botones de acción */}
             <div className="mt-6 flex justify-end space-x-3">
                 {/* Botón de Modificar */}
-                <Button
-                    onClick={()=>onEditOrder(order)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out"
-                    type="button"
-                >
-                    Modificar Pedido
-                </Button>
+                {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && (
+                    <Button
+                        onClick={()=>onEditOrder(order)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out"
+                        type="button"
+                    >
+                        Modificar Pedido
+                    </Button>
+                )}
+                {user?.rol=="chef" && (
+                    <Button
+                        onClick={() => {onUpdateStatus(order.id,order.state == "pending" ?"preparing" : "made"); onClose()}}
+                        className={`${ order.state == "pending" ?"bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700" } text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out`}
+                        type="button"
+                    >
+                        {order.state == "pending" ?"Preparando" : "Hecho"}
+                    </Button>
+                )}
 
                 {/* Botón de cerrar el modal */}
                 <Button

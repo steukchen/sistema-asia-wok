@@ -35,6 +35,7 @@ const DishTableForm = ({
                         <input
                             type="text"
                             id="name"
+                            placeholder="Buscar plato..."
                             name="name"
                             value={searchTerm}
                             onChange={e=>setSearchTerm(e.target.value)}
@@ -76,7 +77,7 @@ const DishTableForm = ({
                             <tr 
                                 key={item.id} 
                                 onClick={()=>setCurrentDishIdToAdd(item.id)}
-                                className={`transition-colors hover:bg-gray-100 ${currentDishIdToAdd === item.id? 'bg-blue-100' : 'bg-white'} cursor-pointer`}
+                                className={`transition-colors hover:bg-gray-100 ${currentDishIdToAdd === item.id? 'bg-blue-100' : 'bg-white'} cursor-pointer select-none`}
                             >
                                 <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</td>
                                 <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.description}</td>
