@@ -1,6 +1,7 @@
 import { lusitana } from "@/app/components/fonts";
 import Button from "@/app/components/ui/button";
 import { useAuth } from "@/app/providers/authProvider";
+import { usePathname } from "next/navigation";
 
 interface HeadSectionProps {
     loading: boolean;
@@ -18,6 +19,7 @@ export default function HeadSection({
     onClickButton,
 }: HeadSectionProps) {
     const {user} = useAuth()
+    const pathname = usePathname()
     return (
         <div className="bg-white w-full overflow-hidden">
             <h2
@@ -27,7 +29,7 @@ export default function HeadSection({
             </h2>
 
             {/* Botón para abrir el formulario de creación */}
-            {user?.rol!="chef" && (<div className="mb-6 flex justify-end">
+            {user?.rol!="chef" && !pathname.includes("/billing")  && (<div className="mb-6 flex justify-end">
                 <Button
                     className="w-full px-6 py-3 bg-[#FB3D01] hover:bg-[#E03A00] text-white font-bold rounded-md"
                     type="button"

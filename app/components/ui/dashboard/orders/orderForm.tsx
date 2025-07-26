@@ -205,11 +205,11 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
     };
 
     if (loading) return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
-                    Cargando...
-                </p>
-            </div>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
+                Cargando...
+            </p>
+        </div>
     );
 
     return (
@@ -276,7 +276,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                                 <tr key={item.dish.id} className='select-none'>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.dish.name}</td>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
-                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${(item.dish.price).toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td>
                                     {initialData?.state != "made" && initialData?.state != "completed" &&(<td className="px-4 py-2 text-center whitespace-nowrap">
                                         <Button
