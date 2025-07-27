@@ -13,6 +13,7 @@ interface OrderTableProps {
 
 const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, onUpdateStatus, onDelete, onEditOrder }) => {
     // Función auxiliar para obtener el color del estado
+    orders.sort((a,b)=>(a.state == "pending" || a.state == "preparing" ? 0 : 1) - (b.state == "pending" || b.state == "preparing" ? 0 : 1))
     const getStatusClasses = (status: OrderStatus) => {
         switch (status) {
             case 'pending':
@@ -29,7 +30,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
     };
 
     const {user} = useAuth()
-    const statusOptions: OrderStatus[] = user?.rol != "chef" ? ['pending','preparing','made','completed'] : ['pending','preparing'];
+    const statusOptions: OrderStatus[] = user?.rol == "admin" ? ['pending','preparing','made','completed'] : ['pending','preparing','made'];
 
     return (
         <div className="overflow-x-auto w-full min-w-0 bg-white rounded-lg shadow-md border border-gray-200">
@@ -90,7 +91,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm sm:text-base font-medium">
                                     <div className="flex flex-col sm:flex-row justify-center space-y-1 sm:space-y-0 sm:space-x-2">
                                         {/* ESTADO DEL PEDIDO (SELECT) */}
-                                        {user?.rol != "waiter" && user?.rol!="chef" && (
+                                        {user?.rol =="admin" && (
                                         <select
                                             value={order.state}
                                             onChange={(e) => onUpdateStatus(order.id, e.target.value as OrderStatus)}
@@ -130,7 +131,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                         </Button>)}
 
                                         {/* BOTÓN DE ELIMINAR */}
-                                        {user?.rol != "waiter" && user?.rol!="chef" && (<Button
+                                        {user?.rol == "admin" && (<Button
                                             onClick={() => onDelete({url:"/orders/delete_order/"+order.id})}
                                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
                                             type="button"

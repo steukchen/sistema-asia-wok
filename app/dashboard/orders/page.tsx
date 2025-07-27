@@ -8,7 +8,6 @@ import OrderForm from "@/app/components/ui/dashboard/orders/orderForm";
 import { useNotification } from "@/app/providers/notificationProvider";
 import OrderDetailsModal from "@/app/components/ui/dashboard/orders/orderDetailsModal";
 import { useWebSocket } from "@/app/hooks/ws";
-import { connect } from 'http2';
 
 export default function OrderSection() {
     const [showForm, setShowForm] = useState(false);

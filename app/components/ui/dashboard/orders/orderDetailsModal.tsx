@@ -23,7 +23,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     const [currencies,setCurrencies] = useState<Currency[] | null>(null)
     const {showNotification,closeNotification} = useNotification()
     const [loading,setLoading] = useState(false)
-    console.log(orderCurrencies)
     // Función auxiliar para obtener el color del estado
     const getStatusClasses = (status: OrderStatus) => {
         switch (status) {
@@ -41,7 +40,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     };
 
     // Opciones de estado para el select
-    const statusOptions: OrderStatus[] = user?.rol != "chef" ? ['pending','preparing','made','completed'] : ['pending','preparing'];
+    const statusOptions: OrderStatus[] = user?.rol == "admin" ? ['pending','preparing','made','completed'] : ['pending','preparing','made'];
 
     useEffect(()=>{
         const params = new URLSearchParams({url:"/currencies/get_currencies"})
@@ -103,7 +102,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 </div>
 
                 {/* Actualizar Estado del Pedido */}
-                {user?.rol != "waiter" && user?.rol !="chef" && !pathname.includes("/billing") && (<div className="mt-4">
+                {user?.rol == "admin" && !pathname.includes("/billing") && (<div className="mt-4">
                     <label htmlFor="order-status" className="block text-sm font-medium text-gray-700 mb-1">Actualizar Estado:</label>
                     <div className="flex items-center space-x-2">
                         <select

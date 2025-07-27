@@ -179,17 +179,17 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                     }
                 }
                 addNotes = addNotes == "\n-----" ? "" : addNotes
-            }
-            let oldNotes = initialData.notes?.split("\n-----") || []
-            if (oldNotes.length >= 1){
-                if (addNotes == "") addNotes += "\n-----"
-                addNotes += oldNotes[1]
+                let oldNotes = initialData.notes?.split("\n-----") || []
+                if (oldNotes.length > 1){
+                    if (addNotes == "") addNotes += "\n-----"
+                    addNotes += oldNotes[1]
+                }
             }
             itemsForBackend.push(...itemsData)
             const orderData: OrderUpdateFormData = {
                 table_id: Number(tableId),
                 dishes: itemsForBackend,
-                notes: notes+addNotes || undefined,
+                notes: notes+addNotes || "",
             };
             await onSave(orderData,{url:"/orders/update_order/"+initialData?.id});
             await onSave(orderData,{url:"/orders/update_dishes/"+initialData?.id});
@@ -198,7 +198,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             const orderData: OrderCreationFormData = {
                 table_id: Number(tableId),
                 dishes: itemsForBackend,
-                notes: notes || undefined,
+                notes: notes || "",
             };
             await onSave(orderData,{url:"/orders/create_order"});
         }

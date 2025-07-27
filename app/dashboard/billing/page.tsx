@@ -29,7 +29,7 @@ export default function OrderSection() {
     });
 
     useEffect(() => {
-        get("",{url:`/orders/get_orders`})
+        get("",{url:`/orders/get_orders_to_bill`})
         if (!isConnected){
             connect()
         }
@@ -42,7 +42,7 @@ export default function OrderSection() {
     }, [isConnected]);
     useEffect(()=>{
         if (messages.at(-1)?.message == "UpdateOrder"){
-            get("",{url:`/orders/get_orders`})
+            get("",{url:`/orders/get_orders_to_bill`})
             setShowDetailsModal(false)
         }
     },[messages])

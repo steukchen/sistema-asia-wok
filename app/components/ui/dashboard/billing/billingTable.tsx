@@ -13,6 +13,7 @@ interface OrderTableProps {
 
 const BillingTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails,onBilling}) => {
     // Función auxiliar para obtener el color del estado
+    orders.sort((a,b)=>(a.state == "made" ? 0 : 1) - (b.state == "made" ? 0 : 1))
     const getStatusClasses = (status: OrderStatus) => {
         switch (status) {
             case 'pending':
