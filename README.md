@@ -13,7 +13,7 @@
 2. Instala las dependencias
 
 ```bash
-    pnpm i
+    pnpm install o si no sirve usar "npm install -g pnpm"
 ```
 
 ### Ejecuta la aplicacion

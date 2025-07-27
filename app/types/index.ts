@@ -85,8 +85,17 @@ interface OrderUpdateFormData {
     dishes?: OrderItemCreation[]; 
 }
 
+type TableState = "enabled" | "occupied" |'disabled'|'reserved';
 interface Table{
     id: number;
-    name: string
-    state: string
+    name: string;
+    state: TableState; 
+}
+
+interface Currency {
+    id: number;
+    name: string;
+    code: string;
+    symbol: string;
+    exchange_rate: number;
 }
