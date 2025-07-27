@@ -79,7 +79,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 {/* Información del Pedido */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p><strong className="font-semibold">Mesa:</strong> {order.table_id}</p>
+                        <p><strong className="font-semibold">Mesa:</strong> {order.table.name}</p>
                         <p><strong className="font-semibold">Fecha Pedido:</strong> {new Date(order.order_date).toLocaleString()}</p>
                         {/* <p><strong className="font-semibold">Última Actualización:</strong> {new Date(order.fecha_actualizacion).toLocaleString()}</p> */}
                     </div>

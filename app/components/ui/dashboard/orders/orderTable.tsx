@@ -74,7 +74,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                     {order.id}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 text-sm sm:text-base text-gray-700">
-                                    {order.table_id}
+                                    {order.table.name}
                                 </td>
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-700">
                                     {new Date(order.order_date).toLocaleDateString()}

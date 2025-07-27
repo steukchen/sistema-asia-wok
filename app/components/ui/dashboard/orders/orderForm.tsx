@@ -11,7 +11,7 @@ interface OrderFormProps {
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) => {
-    const [tableId, seTableId] = useState<number | 1>(1);
+    const [tableId, setTableId] = useState(0);
     const [notes, setNotes] = useState('');
     const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]); 
     const [items,setItems] = useState<OrderItem[]>([]); 
@@ -36,7 +36,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                 method: 'GET'
             }).then(response=>response.json())
             .then((data: OrderWithDishes)=>{
-                seTableId(data.table_id);
+                setTableId(data.table.id);
                 setSelectedItems(data.dishes.map(item => ({
                     dish: item.dish,
                     quantity: item.quantity
@@ -49,7 +49,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             }).finally(()=>setLoading(false))
             setNotes(initialData.notes?.split("\n-----")[0] || '');
         } else {
-            seTableId(1);
+            setTableId(0);
             setNotes('');
             setSelectedItems([]);
         }
@@ -65,11 +65,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
         fetch("/api/get?"+params,{
             method:"GET"
         })
-        .then(response=>response.json())
+        .then(response=>{
+            if (response.ok){
+                return response.json()
+            }
+            throw response.text()
+        })
         .then(data=>{
             setTables(data)
+            if (data && !initialData) setTableId(data[0].id)
         }).catch(rej=>{
-            showNotification({message:"Error al cargar las mesas: "+rej,type:"error"})
+            showNotification({message:"Error al cargar las mesas",type:"error"})
+            onCancel()
         })
 
         const paramsDish = new URLSearchParams({
@@ -78,11 +85,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
         fetch("/api/get?"+paramsDish,{
             method:"GET"
         })
-        .then(response=>response.json())
+        .then(response=>{
+            if (response.ok){
+                return response.json()
+            }
+            throw response.text()
+        })
         .then(data=>{
             setAvailableDishes(data)
         }).catch(rej=>{
-            showNotification({message:"Error al cargar los platos: "+rej,type:"error"})
+            showNotification({message:"Error al cargar los platos",type:"error"})
+            onCancel()
+
         }).finally(()=>setLoading(false))
     },[])
 
@@ -161,7 +175,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
         }));
 
         if (initialData) {
-            const itemsToDeleted = items.filter(item=>item.quantity==0)
+            const itemsToDeleted = items.filter(item=>item.quantity==0 && itemsForBackend.find(x=>x.dish_id==item.dish.id)==undefined)
             const itemsData = itemsToDeleted.map(item => ({
                 dish_id: item.dish.id,
                 quantity: item.quantity,
@@ -224,13 +238,13 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                     id="table_id"
                     name="table_id"
                     value={tableId}
-                    onChange={e => seTableId(parseInt(e.target.value))}
+                    onChange={e => setTableId(parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                     required
                 >
                     {
                         tables?.map(table=>(
-                            <option value={table.id} key={table.id}>{table.id}</option>
+                            <option value={table.id} key={table.id}>{table.name}</option>
                         ))
                     }
                 </select>

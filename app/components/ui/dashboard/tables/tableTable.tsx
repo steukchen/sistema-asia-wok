@@ -18,8 +18,9 @@ const TableTable: React.FC<TableTableProps> = ({
         <table className="w-full text-sm sm:text-base">
             <thead className="bg-gray-100 text-gray-700">
                 <tr>
+                    <th className="px-4 py-3 text-left">ID</th>
                     <th className="px-4 py-3 text-left">Nombre</th>
-                    <th className="px-4 py-3 text-left">Estado</th>
+                    {/* <th className="px-4 py-3 text-left">Estado</th> */}
                     <th className="px-4 py-3 text-center">Acciones</th>
                 </tr>
             </thead>
@@ -30,8 +31,9 @@ const TableTable: React.FC<TableTableProps> = ({
                         className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                             } hover:bg-gray-100 transition duration-150`}
                     >
+                        <td className="px-4 py-2">{table.id}</td>
                         <td className="px-4 py-2">{table.name}</td>
-                        <td className="px-4 py-2 capitalize">{table.state}</td>
+                        {/* <td className="px-4 py-2 capitalize">{table.state}</td> */}
                         <td className="px-4 py-2 flex gap-2 justify-center items-center">
                             <Button
                                 onClick={() => onEdit(table)}

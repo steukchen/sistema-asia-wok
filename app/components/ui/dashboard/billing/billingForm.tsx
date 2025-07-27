@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, MouseEventHandler } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../../button';
 import { useNotification } from '@/app/providers/notificationProvider';
 
@@ -92,7 +92,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         }
 
         const currencyDeleted: OrderCurrencyCreation[] = []
-        for (let c of currencyItemsInOrder){
+        for (const c of currencyItemsInOrder){
             if (!currencyItems.find(x=>x.currency.id==c.currency.id)){
                 currencyDeleted.push({currency_id:c.currency.id,quantity:0})
             }
@@ -103,8 +103,8 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         console.log(orderData)
         // return
         const remaining = ((total-(currencyItems.reduce((sum, item) => sum + (item.quantity/item.currency.exchange), 0))))
-        for (let x of currencies){
-            let r = parseFloat((remaining*x.exchange).toFixed(2))
+        for (const x of currencies){
+            const r = parseFloat((remaining*x.exchange).toFixed(2))
             if (r > 0){
                 if (!confirm("Existe un remantente en: "+x.name+", de: " +r+"\n¿Desea Continuar?")){
                     showNotification({message:"Agregue el valor total de la factura, queda remanente en: "+x.name,type:"error"})

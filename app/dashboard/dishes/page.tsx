@@ -92,7 +92,7 @@ export default function DishSection() {
                 />
             )}
             {!showForm && !loading && !dishes && !error && (
-                <p className="text-gray-600 text-center py-8">No hay usuarios registrados.</p>
+                <p className="text-gray-600 text-center py-8">No hay platos registrados.</p>
             )}
         </div>
     );

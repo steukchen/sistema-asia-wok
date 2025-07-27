@@ -79,6 +79,7 @@ const DishTableForm = ({
                             <tr 
                                 key={item.id} 
                                 onClick={()=>setCurrentDishIdToAdd(item.id)}
+                                onDoubleClick={handleAddItem}
                                 className={`transition-colors hover:bg-gray-100 ${currentDishIdToAdd === item.id? 'bg-blue-100' : 'bg-white'} cursor-pointer select-none`}
                             >
                                 <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</td>

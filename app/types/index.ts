@@ -56,7 +56,7 @@ interface Order {
     id: number;
     created_by: string;
     customer_id?: number
-    table_id: number;
+    table: Table;
     state: OrderStatus;
     notes?: string;
     order_date: string; 
@@ -71,7 +71,7 @@ interface OrderCreationFormData {
 interface OrderWithDishes {
     id: number;
     created_by: string;
-    table_id: number;
+    table: Table;
     state: OrderStatus;
     notes?: string;
     order_date: string; 

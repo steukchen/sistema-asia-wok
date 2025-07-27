@@ -45,19 +45,9 @@ export default function TableForm({
         }
     }, [initialData]);
 
-    // Filtrado de números ya usados (excluye el actual si editas)
-    const usedNumbers = existingTables
-        .map((t) => t.name)
-        .filter((n) => n !== initialData?.name);
-
-    const MAX_TABLES = 50;
-    const availableNumbers = Array.from({ length: MAX_TABLES }, (_, i) =>
-        String(i + 1)
-    ).filter((n) => !usedNumbers.includes(n));
-
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value!= "" ? parseInt(value): value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -78,7 +68,11 @@ export default function TableForm({
             ? `/tables/update_table/${initialData.id}`
             : "/tables/create_table";
 
-        await onSave(form, { url });
+        const body = {
+            name: "MESA "+form.name,
+            state: "enabled" as TableState
+        }
+        await onSave(body, { url });
         setLoading(false);
     };
 
@@ -97,21 +91,18 @@ export default function TableForm({
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                         Número de Mesa
                     </label>
-                    <select
+                    <input
                         name="name"
+                        type="number"
+                        step={1}
+                        min={1}
                         value={form.name}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 bg-white max-h-[200px] overflow-y-auto"
-                    >
-                        {availableNumbers.map((num) => (
-                            <option key={num} value={num}>
-                                Mesa {num}
-                            </option>
-                        ))}
-                    </select>
+                    />
                 </div>
 
-                <div>
+                {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                         Estado
                     </label>
@@ -126,7 +117,7 @@ export default function TableForm({
                         <option value="disabled">Inactiva</option>
                         <option value="reserved">Reservada</option>
                     </select>
-                </div>
+                </div> */}
             </div>
 
             <div className="flex justify-end gap-3 pt-2">

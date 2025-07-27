@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Button from "@/app/components/ui/button";
 import { FiSearch, FiX } from "react-icons/fi";
+import { useAuth } from "@/app/providers/authProvider";
 
 export interface UserTableProps {
     items: User[];
@@ -18,14 +19,14 @@ const UserTable: React.FC<UserTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
+    const {user: u} = useAuth()
 
     const filteredUsers = useMemo(() => {
         if (!searchTerm.trim()) return users;
 
         const term = searchTerm.toLowerCase();
-        return users.filter((user) => user.username.toLowerCase().includes(term));
+        return users.filter((u) => u.username.toLowerCase().includes(term));
     }, [users, searchTerm]);
-
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const visibleUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
@@ -133,13 +134,13 @@ const UserTable: React.FC<UserTableProps> = ({
                                         >
                                             Editar
                                         </Button>
-                                        <Button
+                                        {user.id!=u?.id && (<Button
                                             onClick={() => onDelete({url:"/users/delete_user/"+user.id})}
                                             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-xs rounded-md"
                                             type="button"
                                         >
                                             Eliminar
-                                        </Button>
+                                        </Button>)}
                                     </div>
                                 </td>
                             </tr>

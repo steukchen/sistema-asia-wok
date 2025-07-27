@@ -43,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
                     <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        className="text-gray-400 hover:text-gray-600 transition-colors duration-200 cursor-pointer"
                         aria-label="Cerrar modal"
                     >
                         <svg

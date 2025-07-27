@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '../providers/authProvider';
 import { VARS } from '../utils/env';
-import { log } from 'console';
 
 interface WebSocketOptions {
     onAuthenticated?: () => void;

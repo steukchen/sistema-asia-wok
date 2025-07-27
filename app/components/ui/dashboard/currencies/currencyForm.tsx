@@ -28,17 +28,17 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         name: "",
-        exchange_rate: 0,
+        exchange: 0,
     });
 
     useEffect(() => {
         if (initialData) {
             setForm({
                 name: initialData.name,
-                exchange_rate: initialData.exchange_rate,
+                exchange: initialData.exchange,
             });
         } else {
-            setForm({ name: "", exchange_rate: 0 });
+            setForm({ name: "", exchange: 0 });
         }
     }, [initialData]);
 
@@ -101,7 +101,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
                     type="number"
                     min="0"
                     step="0"
-                    value={form.exchange_rate}
+                    value={form.exchange}
                     onChange={handleChange}
                     className="w-full input"
                 />

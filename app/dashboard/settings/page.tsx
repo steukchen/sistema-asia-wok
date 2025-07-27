@@ -60,15 +60,8 @@ export default function SettingsDashboard() {
         data: { name: string; state: TableState },
         params: Record<string, string>
     ) => {
-        const payload = {
-            name: `Mesa ${data.name}`, 
-            state: data.state,
-        };
-
-        
-
         const action = editTable ? updateTable : createTable;
-        const result = await action(payload, params);
+        const result = await action(data, params);
         if (result) {
             setShowTableForm(false);
             setEditTable(null);
@@ -141,7 +134,7 @@ export default function SettingsDashboard() {
                                 setEditTable(null);
                                 setShowTableForm(true);
                             }}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
                         >
                             Crear Mesa
                         </button>

@@ -69,7 +69,7 @@ const DishTable: React.FC<UserTableProps> = ({
                     )}
                 </div>
                 <div className="ml-4 text-sm text-gray-500">
-                    {filteredDishes.length} {filteredDishes.length === 1 ? "usuario" : "usuarios"}
+                    {filteredDishes.length} {filteredDishes.length === 1 ? "plato" : "platos"}
                 </div>
             </div>
 
@@ -168,7 +168,7 @@ const DishTable: React.FC<UserTableProps> = ({
                                         <div>
                                             <FiSearch className="mx-auto h-12 w-12 text-gray-400" />
                                             <p className="mt-2 font-medium text-gray-900">
-                                                No se encontraron usuarios
+                                                No se encontraron platos
                                             </p>
                                             <p className="mt-1">
                                                 No hay resultados para 
@@ -182,7 +182,7 @@ const DishTable: React.FC<UserTableProps> = ({
                                             </button>
                                         </div>
                                     ) : (
-                                        "No hay usuarios disponibles"
+                                        "No hay platos disponibles"
                                     )}
                                 </td>
                             </tr>
@@ -202,7 +202,7 @@ const DishTable: React.FC<UserTableProps> = ({
                                     {Math.min(startIndex + itemsPerPage, filteredDishes.length)}
                                 </span>{" "}
                                 de <span className="font-medium">{filteredDishes.length}</span>{" "}
-                                usuarios
+                                platos
                             </p>
                         </div>
                         <div>
