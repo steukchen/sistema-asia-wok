@@ -3,17 +3,18 @@ import HeadSection from "@/app/components/ui/dashboard/headSection";
 import { useEffect, useState } from "react";
 import Modal from "@/app/components/ui/dashboard/modal";
 import {useApi} from "@/app/hooks/api"
-import OrderTable from "@/app/components/ui/dashboard/orders/orderTable";
-import OrderForm from "@/app/components/ui/dashboard/orders/orderForm";
 import { useNotification } from "@/app/providers/notificationProvider";
 import OrderDetailsModal from "@/app/components/ui/dashboard/orders/orderDetailsModal";
 import { useWebSocket } from "@/app/hooks/ws";
+import BillingTable from "@/app/components/ui/dashboard/billing/billingTable";
+import BillingForm from "@/app/components/ui/dashboard/billing/billingForm";
 
 export default function OrderSection() {
     const [showForm, setShowForm] = useState(false);
     const [orders, setOrders] = useState<Order[] | null>(null);
     const [editOrder, setEditOrder] = useState<Order | null>(null);
     const [selectedOrder,setSelectedOrder] = useState<OrderWithDishes | null>(null);
+    const [selectedOrderC,setSelectedOrderC] = useState<OrderWithCurrencies | null>(null);
     const [showDetailsModal,setShowDetailsModal] = useState(false);
     const {showNotification} = useNotification();
     const {sendMessage,messages,isConnected,closeSocket,connect} = useWebSocket()
@@ -21,19 +22,14 @@ export default function OrderSection() {
 
     const { 
         state: { data, loading, error }, 
-        get, 
-        create, 
-        update, 
-        delete: deleteItem
-    } = useApi<Order, OrderCreationFormData | OrderUpdateFormData>({
-        resourceName: 'Orden',
-        createTransform: (formData) => ({
-            ...formData
-        })
+        get,
+        update
+    } = useApi<Order, OrderCurrenciesCreation | OrderUpdateFormData>({
+        resourceName: 'Orden'
     });
 
     useEffect(() => {
-        get("",{url:`/orders/get_orders`})
+        get("",{url:`/orders/get_orders_to_bill`})
         if (!isConnected){
             connect()
         }
@@ -46,7 +42,7 @@ export default function OrderSection() {
     }, [isConnected]);
     useEffect(()=>{
         if (messages.at(-1)?.message == "UpdateOrder"){
-            get("",{url:`/orders/get_orders`})
+            get("",{url:`/orders/get_orders_to_bill`})
             setShowDetailsModal(false)
         }
     },[messages])
@@ -59,8 +55,8 @@ export default function OrderSection() {
         }
     },[data])
 
-    const saveOrder = async (orderData: OrderCreationFormData | OrderUpdateFormData,params: Record<string,string>)=>{
-        const data = editOrder ? await update(orderData,params) : await create(orderData,params)
+    const saveOrder = async (orderData: OrderCurrenciesCreation | OrderUpdateFormData,params: Record<string,string>)=>{
+        const data = await update(orderData,params)
         if (data){
             await sendMessage({
                 message: "UpdateOrder"
@@ -70,20 +66,6 @@ export default function OrderSection() {
         
     }
 
-    const deleteOrder = async (params: Record<string,string>)=>{
-        if(!confirm("¿Esta seguro de eliminar la orden?")) return
-        await deleteItem(params);get("",{url:`/orders/get_orders`})
-        await sendMessage({
-            message: "UpdateOrder"
-        })
-    }
-
-    const onUpdateStatus = async (orderId: number,state: OrderStatus) =>{
-        await update({state:state},{url:"/orders/update_order/"+orderId})
-        await sendMessage({
-            message: "UpdateOrder"
-        })
-    }
 
     const handleViewOrderDetails = async (order: Order) => {
         const params = new URLSearchParams({
@@ -98,6 +80,21 @@ export default function OrderSection() {
 
         const data: OrderWithDishes = await response.json();
         setSelectedOrder(data);
+
+        const paramsC = new URLSearchParams({
+            url: `/orders/get_order_currencies/`+order.id
+        });
+        const responseC = await fetch(`/api/get?`+paramsC, {
+            method: 'GET'
+        });
+        if (!responseC.ok) {
+            showNotification({message:"Error al cargar el pedido",type:"error"})
+        }
+
+        const dataC: OrderWithCurrencies = await responseC.json();
+        if (dataC.currencies[0]){
+            setSelectedOrderC(dataC)
+        }
         setShowDetailsModal(true);
     }
 
@@ -105,8 +102,8 @@ export default function OrderSection() {
         <div className="bg-white w-full overflow-hidden">
             <HeadSection
                 loading={loading}
-                title="Gestion de Ordenes"
-                textButton="Crear Orden"
+                title="Gestion de Facturacion"
+                textButton=""
                 error={error}
                 onClickButton={() => {
                     setShowForm(true);
@@ -117,9 +114,9 @@ export default function OrderSection() {
             <Modal
                 isOpen={showForm}
                 onClose={() => setShowForm(false)}
-                title={editOrder ? "Modificar Orden" : `Crear Nueva Orden`}
+                title={"Facturacion"}
             >
-                <OrderForm
+                <BillingForm
                     onSave={saveOrder}
                     onCancel={() => setShowForm(false)}
                     initialData={editOrder ? editOrder : null}
@@ -127,15 +124,13 @@ export default function OrderSection() {
             </Modal>
 
             {!showForm && !loading && orders && (
-                <OrderTable
+                <BillingTable
                     items={orders}
                     onViewDetails={handleViewOrderDetails}
-                    onUpdateStatus={onUpdateStatus}
-                    onEditOrder={(order: Order) => {
-                        setEditOrder(order);
-                        setShowForm(true);
-                    }}
-                    onDelete={deleteOrder}
+                    onBilling={(order) => {
+                    setShowForm(true);
+                    setEditOrder(order);
+                }}
                 />
             )}
 
@@ -144,9 +139,11 @@ export default function OrderSection() {
                 onClose={()=>{
                     setShowDetailsModal(false);
                     setSelectedOrder(null);
+                    setSelectedOrderC(null);
                 }}
                 order={selectedOrder}
-                onUpdateStatus={onUpdateStatus}
+                orderCurrencies={selectedOrderC || null}
+                onUpdateStatus={()=>{}}
                 onEditOrder={(order: Order) => {
                         setEditOrder(order);
                         setShowForm(true);

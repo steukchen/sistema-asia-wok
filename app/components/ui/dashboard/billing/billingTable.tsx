@@ -6,14 +6,14 @@ import { useAuth } from '@/app/providers/authProvider';
 interface OrderTableProps {
     items: Order[]; 
     onViewDetails: (order: Order) => void; 
-    onUpdateStatus: (orderId: number, newStatus: OrderStatus) => void; 
-    onDelete: (params: Record<string,string>) => void; 
-    onEditOrder: (order: Order) => void; 
+    // onUpdateStatus: (orderId: number, newStatus: OrderStatus) => void; 
+    // onDelete: (params: Record<string,string>) => void; 
+    onBilling: (order: Order) => void; 
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, onUpdateStatus, onDelete, onEditOrder }) => {
+const BillingTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails,onBilling}) => {
     // Función auxiliar para obtener el color del estado
-    orders.sort((a,b)=>(a.state == "pending" || a.state == "preparing" ? 0 : 1) - (b.state == "pending" || b.state == "preparing" ? 0 : 1))
+    orders.sort((a,b)=>(a.state == "made" ? 0 : 1) - (b.state == "made" ? 0 : 1))
     const getStatusClasses = (status: OrderStatus) => {
         switch (status) {
             case 'pending':
@@ -29,8 +29,6 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
         }
     };
 
-    const {user} = useAuth()
-    const statusOptions: OrderStatus[] = user?.rol == "admin" ? ['pending','preparing','made','completed'] : ['pending','preparing','made'];
 
     return (
         <div className="overflow-x-auto w-full min-w-0 bg-white rounded-lg shadow-md border border-gray-200">
@@ -90,28 +88,6 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                 {/* Acciones */}
                                 <td className="px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm sm:text-base font-medium">
                                     <div className="flex flex-col sm:flex-row justify-center space-y-1 sm:space-y-0 sm:space-x-2">
-                                        {/* ESTADO DEL PEDIDO (SELECT) */}
-                                        {user?.rol =="admin" && (
-                                        <select
-                                            value={order.state}
-                                            onChange={(e) => onUpdateStatus(order.id, e.target.value as OrderStatus)}
-                                            className="block w-full sm:w-auto px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700 transition-all duration-200 ease-in-out"
-                                        >
-                                            {statusOptions.map((status) => (
-                                                <option key={status} value={status}>
-                                                    {status.replace(/_/g, ' ')}
-                                                </option>
-                                            ))}
-                                        </select>)}
-                                        {user?.rol == "chef" && (
-                                            <Button
-                                                onClick={() => onUpdateStatus(order.id,order.state == "pending" ?"preparing" : "made")}
-                                                className={`${ order.state == "pending" ?"bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700" } text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out`}
-                                                type="button"
-                                            >
-                                                {order.state == "pending" ?"Preparando" : "Hecho"}
-                                            </Button>
-                                        )}
                                         {/* BOTÓN DE VER DETALLES */}
                                         <Button
                                             onClick={() => onViewDetails(order)}
@@ -120,23 +96,12 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                         >
                                             Ver Detalles
                                         </Button>
-
-                                        {/* BOTÓN DE MODIFICAR */}
-                                        {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && (<Button
-                                            onClick={() => onEditOrder(order)}
-                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
+                                        {order.state!="completed" && (<Button
+                                            onClick={() => onBilling(order)}
+                                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
                                             type="button"
                                         >
-                                            Modificar
-                                        </Button>)}
-
-                                        {/* BOTÓN DE ELIMINAR */}
-                                        {user?.rol == "admin" && (<Button
-                                            onClick={() => onDelete({url:"/orders/delete_order/"+order.id})}
-                                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
-                                            type="button"
-                                        >
-                                            Eliminar
+                                            Facturar
                                         </Button>)}
                                     </div>
                                 </td>
@@ -149,4 +114,4 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
     );
 };
 
-export default OrderTable;
+export default BillingTable;

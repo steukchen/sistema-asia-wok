@@ -15,7 +15,7 @@ export default function Navbar() {
             <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 px-4">
                 {/* Sección izquierda: Logo y Título */}
                 <div className="flex items-center space-x-3">
-                    <Link href={`/${user.rol}/dashboard`} className="flex items-center space-x-2">
+                    <Link href={`/dashboard`} className="flex items-center space-x-2">
                         {/* Logo pequeño */}
                         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-700">
                             <Image
