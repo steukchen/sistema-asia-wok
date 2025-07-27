@@ -7,8 +7,8 @@ interface HeadSectionProps {
     loading: boolean;
     error: string | null;
     title: string;
-    textButton: string;
-    onClickButton: () => void;
+    textButton?: string;
+    onClickButton?: () => void;
 }
 
 export default function HeadSection({
@@ -29,7 +29,7 @@ export default function HeadSection({
             </h2>
 
             {/* Botón para abrir el formulario de creación */}
-            {user?.rol!="chef" && !pathname.includes("/billing")  && (<div className="mb-6 flex justify-end">
+            {user?.rol!="chef" && !pathname.includes("/billing") && textButton  && (<div className="mb-6 flex justify-end">
                 <Button
                     className="w-full px-6 py-3 bg-[#FB3D01] hover:bg-[#E03A00] text-white font-bold rounded-md"
                     type="button"
