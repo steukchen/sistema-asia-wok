@@ -27,11 +27,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center md:p-4 bg-transparent backdrop-blur-sm"
             onMouseDown={onClose} // Permite cerrar el modal haciendo clic fuera
         >
             <div
-                className="relative bg-white rounded-lg shadow-xl p-6 w-[80dvw] max-h-[90dvh] overflow-y-auto transform transition-all duration-300 ease-out scale-95 opacity-0 sm:scale-100 sm:opacity-100"
+                className="relative bg-white rounded-lg shadow-xl p-6 w-full max-h-[95dvh] overflow-y-auto transform transition-all duration-300 ease-out scale-95 opacity-0 sm:scale-100 sm:opacity-100"
                 onMouseDown={(e) => e.stopPropagation()} // Evita que el clic dentro del modal lo cierre
                 style={{
                     // Animación simple de entrada/salida para el modal

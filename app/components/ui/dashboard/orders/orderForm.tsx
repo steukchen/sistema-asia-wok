@@ -179,17 +179,17 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                     }
                 }
                 addNotes = addNotes == "\n-----" ? "" : addNotes
-            }
-            let oldNotes = initialData.notes?.split("\n-----") || []
-            if (oldNotes.length >= 1){
-                if (addNotes == "") addNotes += "\n-----"
-                addNotes += oldNotes[1]
+                let oldNotes = initialData.notes?.split("\n-----") || []
+                if (oldNotes.length > 1){
+                    if (addNotes == "") addNotes += "\n-----"
+                    addNotes += oldNotes[1]
+                }
             }
             itemsForBackend.push(...itemsData)
             const orderData: OrderUpdateFormData = {
                 table_id: Number(tableId),
                 dishes: itemsForBackend,
-                notes: notes+addNotes || undefined,
+                notes: notes+addNotes || "",
             };
             await onSave(orderData,{url:"/orders/update_order/"+initialData?.id});
             await onSave(orderData,{url:"/orders/update_dishes/"+initialData?.id});
@@ -198,18 +198,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             const orderData: OrderCreationFormData = {
                 table_id: Number(tableId),
                 dishes: itemsForBackend,
-                notes: notes || undefined,
+                notes: notes || "",
             };
             await onSave(orderData,{url:"/orders/create_order"});
         }
     };
 
     if (loading) return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
-                    Cargando...
-                </p>
-            </div>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
+                Cargando...
+            </p>
+        </div>
     );
 
     return (
@@ -276,7 +276,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
                                 <tr key={item.dish.id} className='select-none'>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.dish.name}</td>
                                     <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">{item.quantity}</td>
-                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.dish.price.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${(item.dish.price).toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right text-sm sm:text-base text-gray-900 whitespace-nowrap">${(item.quantity * item.dish.price).toFixed(2)}</td>
                                     {initialData?.state != "made" && initialData?.state != "completed" &&(<td className="px-4 py-2 text-center whitespace-nowrap">
                                         <Button

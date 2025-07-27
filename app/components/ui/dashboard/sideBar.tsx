@@ -5,7 +5,7 @@ import { useState } from "react";
 import { lusitana } from "@/app/components/fonts";
 import { usePathname } from "next/navigation";
 
-type Sections = "users" | "dishes" | "orders" | "settings";
+type Sections = "users" | "dishes" | "orders" | "settings" | "billing";
 
 interface SideBarProps {
     userRole: UserRole;
@@ -13,14 +13,15 @@ interface SideBarProps {
 
 const SideBar: React.FC<SideBarProps> = ({ userRole }) => {
     const navItems: { name: string; href: Sections; icon: string; roles: UserRole[] }[] = [
-        { name: "Gestión de Usuarios", href: "users", icon: "👤", roles: ["admin"] },
-        { name: "Gestión de Platos", href: "dishes", icon: "🍽️", roles: ["admin", "cashier"] },
         {
             name: "Gestión de Pedidos",
             href: "orders",
             icon: "📋",
             roles: ["admin", "chef", "waiter", "cashier"],
         },
+        { name: "Gestion de Facturación", href: "billing", icon: "💸", roles: ["admin","cashier"] },
+        { name: "Gestión de Platos", href: "dishes", icon: "🍽️", roles: ["admin", "cashier"] },
+        { name: "Gestión de Usuarios", href: "users", icon: "👤", roles: ["admin"] },
         { name: "Configuración Restaurante", href: "settings", icon: "⚙️", roles: ["admin"] },
     ];
     const pathname = usePathname()

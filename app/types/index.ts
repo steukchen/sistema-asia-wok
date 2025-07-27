@@ -52,10 +52,10 @@ interface OrderItem {
     dish: Dish; 
 }
 
-
 interface Order {
     id: number;
     created_by: string;
+    customer_id?: number
     table_id: number;
     state: OrderStatus;
     notes?: string;
@@ -92,10 +92,33 @@ interface Table{
     state: TableState; 
 }
 
-interface Currency {
+interface Currency{
     id: number;
     name: string;
-    code: string;
-    symbol: string;
-    exchange_rate: number;
+    exchange: number;
+}
+
+interface OrderCurrencyItem {
+    quantity: number;
+    currency: Currency; 
+}
+
+interface OrderCurrencyCreation {
+    currency_id: number;
+    quantity: number;
+}
+
+interface OrderCurrenciesCreation{
+    customer_id?: number
+    currencies: OrderCurrencyCreation[]
+}
+
+interface OrderWithCurrencies {
+    id: number;
+    created_by: string;
+    table_id: number;
+    state: OrderStatus;
+    notes?: string;
+    order_date: string; 
+    currencies: OrderCurrencyItem[]; 
 }

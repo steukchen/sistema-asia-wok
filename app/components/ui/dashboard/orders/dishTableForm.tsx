@@ -19,10 +19,12 @@ const DishTableForm = ({
     const [currentDishQuantityToAdd, setCurrentDishQuantityToAdd] = useState<number>(1);
     
     const filteredDishes = useMemo(() => {
-        if (!searchTerm.trim()) return dishes;
+        if (!searchTerm.trim()) return dishes?.slice(0, 5);
 
         const term = searchTerm.toLowerCase();
-        return dishes?.filter((dish) => dish.name.toLowerCase().includes(term));
+        return dishes
+            ?.filter(dish => dish.name.toLowerCase().includes(term))
+            ?.slice(0, 5); 
     }, [dishes, searchTerm]);
 
     return (
