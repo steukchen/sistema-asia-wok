@@ -34,7 +34,6 @@ export default function OrderSection() {
             connect()
         }
         return ()=>{
-            console.log(isConnected)
             if (isConnected){
                 closeSocket()
             }

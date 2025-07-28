@@ -2,14 +2,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '../providers/authProvider';
 import { VARS } from '../utils/env';
 
-interface WebSocketOptions {
-    onAuthenticated?: () => void;
-    onAuthenticationFailed?: (error: any) => void;
-}
 
-export const useWebSocket = (
-    options?: WebSocketOptions
-) => {
+export const useWebSocket = () => {
     const {wsToken,logout} = useAuth()
 
     const socketRef = useRef<WebSocket | null>(null);
@@ -21,9 +15,14 @@ export const useWebSocket = (
     const isMounted = useRef(true);
 
     // Función para enviar mensajes
-    const sendMessage = useCallback((message: object) => {
-        if (socketRef.current && isConnected) {
-            socketRef.current.send(JSON.stringify(message));
+    const sendMessage = useCallback(async (message: object) => {
+        if (socketRef.current) {
+            if (socketRef.current.readyState < 2){
+                socketRef.current.send(JSON.stringify(message));
+            }else{
+                await connect()
+                socketRef.current.send(JSON.stringify(message));
+            }
         }
     }, [isConnected]);
 
@@ -33,13 +32,12 @@ export const useWebSocket = (
 
     const connect = useCallback(() => {
         if (!wsToken) {
-            console.log("epa")
             setError('No authentication token provided');
             return;
         }
 
-        if (socketRef.current?.OPEN) {
-            return
+        if (socketRef.current) {
+            if (socketRef.current.readyState < 2) return;
         }
 
         if (socketRef.current) {
@@ -56,6 +54,7 @@ export const useWebSocket = (
             setError(null);
             reconnectAttempts.current = 0;
             // Enviar token inmediatamente después de abrir
+
             socket.send(wsToken);
         };
 
@@ -66,7 +65,6 @@ export const useWebSocket = (
                     socketRef.current?.close(1000,"Another connection")
                     logout()
                 }
-                console.log(data)
                 setMessages(prev => [...prev, data]);
             } catch (e) {
                 console.error('Error parsing message:', e);
@@ -79,7 +77,6 @@ export const useWebSocket = (
         };
 
         socket.onclose = (event) => {
-            console.log(event)
             if (event.code === 1000) {
                 alert("Se ha detectado otra sesion")
                 logout()
@@ -89,7 +86,9 @@ export const useWebSocket = (
             if (event.code==1008){
                 window.location.reload()
             }
-
+            if (event.code==1005){
+                return
+            }
             // Intentar reconexión automática
             if (isMounted.current && reconnectAttempts.current < 5) {
                 reconnectAttempts.current += 1;
@@ -107,6 +106,7 @@ export const useWebSocket = (
                 }, delay);
             } else {
                 setError('Max reconnect attempts reached');
+                window.location.reload()
             }
 
             setIsConnected(false);
