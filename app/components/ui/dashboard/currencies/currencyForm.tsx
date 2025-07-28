@@ -8,15 +8,14 @@ interface CurrencyFormProps {
     onSave: (
         data: {
             name: string;
-            code: string;
-            symbol: string;
-            exchange_rate: number;
+            exchange: number;
         },
         params: Record<string, string>
     ) => void;
     onCancel: () => void;
     isLoading: boolean;
 }
+
 
 export const CurrencyForm: React.FC<CurrencyFormProps> = ({
     initialData,
@@ -26,6 +25,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
 }) => {
     const { showNotification, closeNotification } = useNotification();
     const [loading, setLoading] = useState(false);
+
     const [form, setForm] = useState({
         name: "",
         exchange: 0,
@@ -34,8 +34,8 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
     useEffect(() => {
         if (initialData) {
             setForm({
-                name: initialData.name,
-                exchange: initialData.exchange,
+                name: initialData.name || "",
+                exchange: initialData.exchange || 0,
             });
         } else {
             setForm({ name: "", exchange: 0 });
@@ -48,8 +48,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
         const { name, value } = e.target;
         setForm((prev) => ({
             ...prev,
-            [name]:
-                name === "exchange_rate" ? parseFloat(value) || 1 : value,
+            [name]: name === "exchange" ? parseFloat(value) || 0 : value,
         }));
     };
 
@@ -58,7 +57,9 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
         closeNotification();
         setLoading(true);
 
-        if (!form.name ) {
+        const { name, exchange } = form;
+
+        if (!name || !exchange) {
             showNotification({
                 message: "Todos los campos son obligatorios.",
                 type: "error",
@@ -71,6 +72,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
             ? `/currencies/update_currency/${initialData.id}`
             : "/currencies/create_currency";
 
+        await onSave(form, { url });
         setLoading(false);
     };
 
@@ -95,12 +97,12 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
 
 
             <div>
-                <label className="block text-sm mb-1">Tipo de Cambio</label>
+                <label className="block text-sm text-black mb-1">Tipo de Cambio</label>
                 <input
-                    name="exchange_rate"
+                    name="exchange"
                     type="number"
-                    min="0"
-                    step="0"
+                    min="{0.01}"
+                    step="0.01"
                     value={form.exchange}
                     onChange={handleChange}
                     className="w-full input"

@@ -20,12 +20,11 @@ export default function CurrenciesPage() {
         delete: deleteCurrency,
     } = useApi<Currency, {
         name: string;
-        code: string;
-        symbol: string;
-        exchange_rate: number;
+        exchange: number;
     }>({
         resourceName: "Moneda",
     });
+
 
     const [showForm, setShowForm] = useState(false);
     const [currencies, setCurrencies] = useState<Currency[] | null>(null);
@@ -47,9 +46,7 @@ export default function CurrenciesPage() {
     const saveCurrency = async (
         currencyData: {
             name: string;
-            code: string;
-            symbol: string;
-            exchange_rate: number;
+            exchange: number;
         },
         params: Record<string, string>
     ) => {
@@ -64,6 +61,7 @@ export default function CurrenciesPage() {
             setShowForm(true);
         }
     };
+
 
     const handleDelete = async (id: number) => {
         if (!confirm("¿Estás seguro de eliminar esta moneda?")) return;
