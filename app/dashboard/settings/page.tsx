@@ -7,9 +7,11 @@ import { useApi } from "@/app/hooks/api";
 import TableForm, { Table, TableState } from "@/app/components/ui/dashboard/tables/tableForm";
 import TableTable from "@/app/components/ui/dashboard/tables/tableTable";
 import CurrencyForm from "@/app/components/ui/dashboard/currencies/currencyForm";
+import CurrencyTable from "@/app/components/ui/dashboard/currencies/currencyTable";
 import { FaChair, FaMoneyBillWave } from "react-icons/fa";
 
 export default function SettingsDashboard() {
+    // 🪑 Gestión de Mesas
     const {
         state: tableState,
         get: loadTables,
@@ -40,22 +42,6 @@ export default function SettingsDashboard() {
         }
     }, [tableState.data]);
 
-    const {
-        state: currencyState,
-        create: createCurrency,
-        update: updateCurrency,
-    } = useApi<Currency, {
-        name: string;
-        code: string;
-        symbol: string;
-        exchange_rate: number;
-    }>({
-        resourceName: "Moneda",
-    });
-
-    const [showCurrencyModal, setShowCurrencyModal] = useState(false);
-    const [editCurrency, setEditCurrency] = useState<Currency | null>(null);
-
     const handleSaveTable = async (
         data: { name: string; state: TableState },
         params: Record<string, string>
@@ -75,28 +61,56 @@ export default function SettingsDashboard() {
         loadTables("", { url: "/tables/get_tables" });
     };
 
-    // — Guardar Moneda (igual que antes) —
+    // 💸 Gestión de Monedas
+    const {
+        state: currencyState,
+        get: loadCurrencies,
+        create: createCurrency,
+        update: updateCurrency,
+        delete: deleteCurrency,
+    } = useApi<Currency, { name: string; exchange: number }>({
+        resourceName: "Moneda",
+    });
+
+    const [currencies, setCurrencies] = useState<Currency[]>([]);
+    const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+    const [showCurrencyForm, setShowCurrencyForm] = useState(false);
+    const [editCurrency, setEditCurrency] = useState<Currency | null>(null);
+
+    useEffect(() => {
+        loadCurrencies("", { url: "/currencies/get_currencies" });
+    }, []);
+
+    useEffect(() => {
+        if (Array.isArray(currencyState.data)) {
+            setCurrencies(currencyState.data);
+        }
+    }, [currencyState.data]);
+
     const handleSaveCurrency = async (
-        data: {
-            name: string;
-            code: string;
-            symbol: string;
-            exchange_rate: number;
-        },
+        data: { name: string; exchange: number },
         params: Record<string, string>
     ) => {
         const action = editCurrency ? updateCurrency : createCurrency;
         const result = await action(data, params);
         if (result) {
-            setShowCurrencyModal(false);
+            setShowCurrencyForm(false);
             setEditCurrency(null);
+            loadCurrencies("", { url: "/currencies/get_currencies" });
         }
+    };
+
+    const handleDeleteCurrency = async (id: number) => {
+        if (!confirm("¿Estás seguro de eliminar esta moneda?")) return;
+        await deleteCurrency({ url: `/currencies/delete_currency/${id}` });
+        loadCurrencies("", { url: "/currencies/get_currencies" });
     };
 
     return (
         <div className="p-6 space-y-8">
             <HeadSection title="Ajustes del Restaurante" loading={false} error={null} />
 
+            {/* Opciones visuales */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div
                     onClick={() => setShowTableModal(true)}
@@ -113,11 +127,11 @@ export default function SettingsDashboard() {
                 >
                     <FaMoneyBillWave className="text-4xl text-green-600 mb-3" />
                     <h3 className="text-lg font-semibold text-gray-700 mb-1">Gestionar Monedas</h3>
-                    <p className="text-sm text-gray-600">Configura símbolo, tipo de cambio y más.</p>
+                    <p className="text-sm text-gray-600">Crea, edita o elimina monedas.</p>
                 </div>
             </div>
 
-            {/* Modal Mesas */}
+            {/* Modal de Mesas */}
             <Modal
                 isOpen={showTableModal}
                 onClose={() => {
@@ -142,10 +156,14 @@ export default function SettingsDashboard() {
                     </div>
 
                     {!showTableForm && (
-                        <TableTable tables={tables} onEdit={(table) => {
-                            setEditTable(table);
-                            setShowTableForm(true);
-                        }} onDelete={handleDeleteTable} />
+                        <TableTable
+                            tables={tables}
+                            onEdit={(table) => {
+                                setEditTable(table);
+                                setShowTableForm(true);
+                            }}
+                            onDelete={handleDeleteTable}
+                        />
                     )}
 
                     {showTableForm && (
@@ -163,24 +181,53 @@ export default function SettingsDashboard() {
                 </div>
             </Modal>
 
-            {/* Modal Monedas */}
+            {/* Modal de Monedas */}
             <Modal
                 isOpen={showCurrencyModal}
                 onClose={() => {
                     setShowCurrencyModal(false);
+                    setShowCurrencyForm(false);
                     setEditCurrency(null);
                 }}
-                title={editCurrency ? "Editar Moneda" : "Crear Moneda"}
+                title="Gestión de Monedas"
             >
-                <CurrencyForm
-                    initialData={editCurrency}
-                    onSave={handleSaveCurrency}
-                    onCancel={() => {
-                        setShowCurrencyModal(false);
-                        setEditCurrency(null);
-                    }}
-                    isLoading={currencyState.loading}
-                />
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <button
+                            onClick={() => {
+                                setEditCurrency(null);
+                                setShowCurrencyForm(true);
+                            }}
+                            className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                        >
+                            Crear Moneda
+                        </button>
+                        {currencyState.error && <p className="text-red-500">{currencyState.error}</p>}
+                    </div>
+
+                    {!showCurrencyForm && (
+                        <CurrencyTable
+                            currencies={currencies}
+                            onEdit={(currency) => {
+                                setEditCurrency(currency);
+                                setShowCurrencyForm(true);
+                            }}
+                            onDelete={handleDeleteCurrency}
+                        />
+                    )}
+
+                    {showCurrencyForm && (
+                        <CurrencyForm
+                            initialData={editCurrency}
+                            onSave={handleSaveCurrency}
+                            onCancel={() => {
+                                setShowCurrencyForm(false);
+                                setEditCurrency(null);
+                            }}
+                            isLoading={currencyState.loading}
+                        />
+                    )}
+                </div>
             </Modal>
         </div>
     );

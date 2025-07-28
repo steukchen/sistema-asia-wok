@@ -8,7 +8,7 @@ interface User {
 }
 
 interface UserFormData {
-    id?: string
+    id?: string;
     email: string;
     username: string;
     rol: UserRole;
@@ -41,7 +41,7 @@ interface DishFormData {
     type_id: number;
 }
 
-type OrderStatus = 'pending' | 'preparing' | 'made' | 'completed' | 'cancelled';
+type OrderStatus = "pending" | "preparing" | "made" | "completed" | "cancelled";
 interface OrderItemCreation {
     dish_id: number;
     quantity: number;
@@ -49,22 +49,22 @@ interface OrderItemCreation {
 
 interface OrderItem {
     quantity: number;
-    dish: Dish; 
+    dish: Dish;
 }
 
 interface Order {
     id: number;
     created_by: string;
-    customer_id?: number
+    customer_id?: number;
     table: Table;
     state: OrderStatus;
     notes?: string;
-    order_date: string; 
+    order_date: string;
 }
 
 interface OrderCreationFormData {
     table_id: number;
-    dishes: OrderItemCreation[]; 
+    dishes: OrderItemCreation[];
     notes?: string;
 }
 
@@ -74,25 +74,25 @@ interface OrderWithDishes {
     table: Table;
     state: OrderStatus;
     notes?: string;
-    order_date: string; 
-    dishes: OrderItem[]; 
+    order_date: string;
+    dishes: OrderItem[];
 }
 
 interface OrderUpdateFormData {
-    table_id?: number; 
-    state?: OrderStatus; 
-    notes?: string; 
-    dishes?: OrderItemCreation[]; 
+    table_id?: number;
+    state?: OrderStatus;
+    notes?: string;
+    dishes?: OrderItemCreation[];
 }
 
-type TableState = "enabled" | "occupied" |'disabled'|'reserved';
-interface Table{
+type TableState = "enabled" | "occupied" | "disabled" | "reserved";
+interface Table {
     id: number;
     name: string;
-    state: TableState; 
+    state: TableState;
 }
 
-interface Currency{
+interface Currency {
     id: number;
     name: string;
     exchange: number;
@@ -100,7 +100,7 @@ interface Currency{
 
 interface OrderCurrencyItem {
     quantity: number;
-    currency: Currency; 
+    currency: Currency;
 }
 
 interface OrderCurrencyCreation {
@@ -108,9 +108,9 @@ interface OrderCurrencyCreation {
     quantity: number;
 }
 
-interface OrderCurrenciesCreation{
-    customer_id?: number
-    currencies: OrderCurrencyCreation[]
+interface OrderCurrenciesCreation {
+    customer_id?: number;
+    currencies: OrderCurrencyCreation[];
 }
 
 interface OrderWithCurrencies {
@@ -119,6 +119,6 @@ interface OrderWithCurrencies {
     table_id: number;
     state: OrderStatus;
     notes?: string;
-    order_date: string; 
-    currencies: OrderCurrencyItem[]; 
+    order_date: string;
+    currencies: OrderCurrencyItem[];
 }

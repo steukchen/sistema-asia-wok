@@ -19,8 +19,6 @@ const CurrencyTable: React.FC<CurrencyTableProps> = ({
             <thead className="bg-gray-100 text-gray-700">
                 <tr>
                     <th className="px-4 py-3 text-left">Nombre</th>
-                    <th className="px-4 py-3 text-left">Código</th>
-                    <th className="px-4 py-3 text-left">Símbolo</th>
                     <th className="px-4 py-3 text-left">Cambio</th>
                     <th className="px-4 py-3 text-center">Acciones</th>
                 </tr>
@@ -33,21 +31,21 @@ const CurrencyTable: React.FC<CurrencyTableProps> = ({
                             } hover:bg-gray-100 transition duration-150`}
                     >
                         <td className="px-4 py-2">{currency.name}</td>
-                        <td className="px-4 py-2 uppercase">{currency.code}</td>
-                        <td className="px-4 py-2">{currency.symbol}</td>
-                        <td className="px-4 py-2">{currency.exchange_rate.toFixed(2)}</td>
+                        <td className="px-4 py-2">{currency.exchange.toFixed(2)}</td>
                         <td className="px-4 py-2 flex justify-center gap-2 items-center">
                             <Button
                                 onClick={() => onEdit(currency)}
-                                className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md"
+                                className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md"
                             >
                                 <FaEdit />
+                                <span>Modificar</span>
                             </Button>
                             <Button
                                 onClick={() => onDelete(currency.id)}
-                                className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md"
+                                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white p-2 rounded-md"
                             >
                                 <FaTrash />
+                                <span>Eliminar</span>
                             </Button>
                         </td>
                     </tr>
