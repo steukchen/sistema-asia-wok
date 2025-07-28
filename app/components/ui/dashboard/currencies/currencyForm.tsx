@@ -48,7 +48,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
         const { name, value } = e.target;
         setForm((prev) => ({
             ...prev,
-            [name]: name === "exchange" ? parseFloat(value) || 0 : value,
+            [name]: name === "exchange" ? parseFloat(value) || "" : value,
         }));
     };
 

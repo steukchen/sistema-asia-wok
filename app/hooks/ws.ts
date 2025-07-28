@@ -8,7 +8,7 @@ export const useWebSocket = () => {
 
     const socketRef = useRef<WebSocket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [messages, setMessages] = useState<any[]>([]);
+    const [messages, setMessages] = useState<WebSocketMessage[]>([]);
     const [error, setError] = useState<string | null>(null);
     const reconnectAttempts = useRef(0);
     const reconnectTimer = useRef<NodeJS.Timeout | null>(null);

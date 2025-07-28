@@ -122,3 +122,8 @@ interface OrderWithCurrencies {
     order_date: string;
     currencies: OrderCurrencyItem[];
 }
+
+interface WebSocketMessage{
+    type: string;
+    message: string;
+}

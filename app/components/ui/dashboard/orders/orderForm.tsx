@@ -183,17 +183,17 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             let addNotes = ""
             if (initialData.state == "preparing"){
                 addNotes+="\n-----"
-                for (let i of itemsToDeleted){
+                for (const i of itemsToDeleted){
                     addNotes+= "\n" + i.dish.name + " Borrado"
                 }
-                for (let i of itemsForBackend){
-                    let d = availableDishes?.find(d=>d.id==i.dish_id)
+                for (const i of itemsForBackend){
+                    const d = availableDishes?.find(d=>d.id==i.dish_id)
                     if (!items.find(d=>d.dish.id==i.dish_id && d.quantity==i.quantity)){
                         addNotes+= "\n" + d?.name +" Nueva Cantidad: "+i.quantity 
                     }
                 }
                 addNotes = addNotes == "\n-----" ? "" : addNotes
-                let oldNotes = initialData.notes?.split("\n-----") || []
+                const oldNotes = initialData.notes?.split("\n-----") || []
                 if (oldNotes.length > 1){
                     if (addNotes == "") addNotes += "\n-----"
                     addNotes += oldNotes[1]
