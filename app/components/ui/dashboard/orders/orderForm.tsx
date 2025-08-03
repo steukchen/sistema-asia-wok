@@ -227,7 +227,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
     );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+        <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow-md border border-gray-200 select-none">
             {/* Sección de Datos del Pedido (Número de Mesa) */}
             <h3 className="text-lg text-center sm:text-xl font-semibold text-gray-800 pb-2 mb-4">Datos del Pedido</h3>
             <div>
@@ -261,17 +261,19 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) 
             </div>
             
 
-            {initialData?.state != "made" && initialData?.state != "completed" &&(<><h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-2 mb-4">Buscar Platos</h3>
+            {initialData?.state != "made" && initialData?.state != "completed" &&(<><h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-1 mb-1">Buscar Platos</h3>
             {/* Sección de Platos del Pedido */}
             <DishTableForm 
                 dishes={availableDishes}
                 handleAddItem={handleAddItem}
                 setCurrentDishIdToAdd={setCurrentDishIdToAdd}
+                setCurrentDishQuantityToAdd={setCurrentDishQuantityToAdd}
+                currentDishQuantityToAdd={currentDishQuantityToAdd}
                 currentDishIdToAdd={currentDishIdToAdd}
             /></>)}
 
             
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-2 mb-4">Platos del Pedido</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-1 mb-1">Platos del Pedido</h3>
             {/* Lista de Platos Seleccionados */}
             {selectedItems.length > 0 && (
                 <div className="mt-6 border border-gray-200 rounded-md overflow-hidden shadow-sm overflow-x-auto"> 

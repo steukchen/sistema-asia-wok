@@ -228,7 +228,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel}) => 
             </div>
 
             {/* Botones de acción */}
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="flex flex-col md:flex-row gap-3 justify-end space-x-3 mt-6 md:w-[60%] md:relative md:ml-auto">
                 <Button
                     type="button" // Importante: para que no envíe el formulario
                     onClick={onCancel}

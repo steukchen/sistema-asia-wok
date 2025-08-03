@@ -91,7 +91,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    className="w-full input"
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition-all duration-200 ease-in-out"
                 />
             </div>
 
@@ -105,7 +105,7 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
                     step="0.01"
                     value={form.exchange}
                     onChange={handleChange}
-                    className="w-full input"
+                    className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition-all duration-200 ease-in-out"
                 />
             </div>
 
