@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '../../button';
 import { useNotification } from '@/app/providers/notificationProvider';
 import SearchCustomer from './searchCustomer';
+import { generatePDF } from '@/app/pdf/pdf';
 
 interface OrderFormProps {
     onSave: (orderData: OrderCurrenciesCreation | OrderUpdateFormData, params: Record<string,string>) => Promise<void>; 
@@ -26,7 +27,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
     const [valueCurrency,setValueCurrency] = useState(1)
     const [currencies,setCurrencies] = useState<Currency[] | null>(null)
     const [currentCurrencyIdToAdd, setCurrentCurrencyIdToAdd] = useState<number | 0>(1);
-    const [currentCurrencyQuantityToAdd, setCurrentCurrencyQuantityToAdd] = useState<number>(0.0);
+    const [currentCurrencyQuantityToAdd, setCurrentCurrencyQuantityToAdd] = useState("");
     const {closeNotification,showNotification} = useNotification()
 
 
@@ -140,6 +141,15 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         setLoading(true)
         await onSave(orderData,{url:"/orders/update_currencies/"+initialData?.id});
         await onSave({state:"completed",customer_id:customer.id},{url:"/orders/update_order/"+initialData?.id});
+        if (initialData){
+            await generatePDF({
+                customer: customer,
+                order: initialData,
+                dishes: items,
+                currencies:currencyItems
+            })
+
+        }
         setLoading(false)
     }
 
@@ -154,7 +164,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
             showNotification({message:'Por favor, selecciona una divisa para añadir.',type:"error"});
             return;
         }
-        if (currentCurrencyQuantityToAdd <= 0 && quantity==0) {
+        if ((isNaN(parseFloat(currentCurrencyQuantityToAdd)) || parseFloat(currentCurrencyQuantityToAdd) <= 0) && quantity==0) {
             showNotification({message:'La cantidad debe ser mayor que cero.',type:"error"});
             return;
         }
@@ -169,7 +179,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
                     )
                         *(currencyToAdd?.exchange ? currencyToAdd.exchange : 1) // se multiplica para sacar el valor restante en la divisa seleccionada
                 )
-            ) - (quantity!=0 ? quantity : currentCurrencyQuantityToAdd) // lo que se va a cobrar
+            ) - (quantity!=0 ? quantity : parseFloat(currentCurrencyQuantityToAdd)) // lo que se va a cobrar
         if (parseFloat(remaining.toFixed(2)) < 0){
             showNotification({message:'No se puede cobrar mas de lo establecido.',type:"error"});
             return
@@ -181,7 +191,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
                 setCurrencyItems(prevItems =>
                     prevItems.map((item, index) =>
                         index === existingItemIndex
-                            ? { ...item, quantity: item.quantity + (quantity!=0 ? quantity : currentCurrencyQuantityToAdd) }
+                            ? { ...item, quantity: item.quantity + (quantity!=0 ? quantity : parseFloat(currentCurrencyQuantityToAdd)) }
                             : item
                     )
                 );
@@ -190,12 +200,12 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
                     ...prevItems,
                     {
                         currency: currencyToAdd,
-                        quantity: (quantity!=0 ? quantity : currentCurrencyQuantityToAdd),
+                        quantity: (quantity!=0 ? quantity : parseFloat(currentCurrencyQuantityToAdd)),
                     }
                 ]);
             }
 
-            setCurrentCurrencyQuantityToAdd(1);
+            setCurrentCurrencyQuantityToAdd("0");
             setCurrentCurrencyIdToAdd(1)
         } else {
             showNotification({message:'Divisa no encontrada.',type:"error"});
@@ -280,7 +290,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
                         id="currencyQuantity"
                         value={currentCurrencyQuantityToAdd}
                         step="0.1"
-                        onChange={(e) => {setCurrentCurrencyQuantityToAdd(parseFloat(e.target.value))}}
+                        onChange={(e) => {setCurrentCurrencyQuantityToAdd(e.target.value)}}
                         min="0.00"
                         className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base transition-all duration-200 ease-in-out"
                     />

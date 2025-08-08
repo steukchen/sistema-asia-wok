@@ -6,6 +6,7 @@ import Button from '../../button';
 import { useAuth } from '@/app/providers/authProvider';
 import { usePathname } from 'next/navigation';
 import { useNotification } from '@/app/providers/notificationProvider';
+import { generatePDF } from '@/app/pdf/pdf';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -242,6 +243,16 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 )}
 
                 {/* Botón de cerrar el modal */}
+
+                {pathname.includes("/billing")&& customer && orderCurrencies && (
+                    <Button
+                        onClick={() => generatePDF({customer:customer,order:order,currencies:orderCurrencies.currencies,dishes:order.dishes})}
+                        className={` bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out`}
+                        type="button"
+                    >
+                        Comprobante
+                    </Button>
+                )}
                 <Button
                     onClick={onClose}
                     className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out"
