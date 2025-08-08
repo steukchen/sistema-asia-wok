@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../button';
 import { useNotification } from '@/app/providers/notificationProvider';
+import SearchCustomer from './searchCustomer';
 
 interface OrderFormProps {
     onSave: (orderData: OrderCurrenciesCreation | OrderUpdateFormData, params: Record<string,string>) => Promise<void>; 
@@ -10,6 +11,14 @@ interface OrderFormProps {
 }
 
 const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }) => {
+    const [customer,setCustomer] = useState<Customer>({
+        id:0,
+        ci:"",
+        name:"",
+        lastname:"",
+        phone_number:"",
+        address:""
+    });
     const [items,setItems] = useState<OrderItem[]>([]); 
     const [currencyItems,setCurrencyItems] = useState<OrderCurrencyItem[]>([]); 
     const [currencyItemsInOrder,setCurrencyItemsInOrder] = useState<OrderCurrencyItem[]>([]); 
@@ -18,7 +27,6 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
     const [currencies,setCurrencies] = useState<Currency[] | null>(null)
     const [currentCurrencyIdToAdd, setCurrentCurrencyIdToAdd] = useState<number | 0>(1);
     const [currentCurrencyQuantityToAdd, setCurrentCurrencyQuantityToAdd] = useState<number>(0.0);
-
     const {closeNotification,showNotification} = useNotification()
 
 
@@ -58,6 +66,17 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
                     currency: item.currency,
                     quantity: item.quantity
                 })));
+                if (data.customer_id){
+                    const paramsCustomer = new URLSearchParams({
+                        url: `/customers/get_customer_by_id/`+data.customer_id
+                    });
+                    fetch(`/api/get?`+paramsCustomer, {
+                        method: 'GET'
+                    }).then(response=>response.json())
+                    .then((data: Customer)=>{
+                        setCustomer(data)
+                    })
+                }
                 
             }).finally(()=>setLoading(false))
         }
@@ -90,6 +109,10 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         if (!currencies){
             return
         }
+        if (customer.id <= 0){
+            showNotification({message:"Seleccione un cliente.",type:"error"})
+            return
+        }
 
         const currencyDeleted: OrderCurrencyCreation[] = []
         for (const c of currencyItemsInOrder){
@@ -100,13 +123,15 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         const orderData = {
             currencies: [...currencyDeleted,...currencyItems.map(x=>Object({currency_id:x.currency.id,quantity:x.quantity}))]
         }
-        console.log(orderData)
-        // return
         const remaining = ((total-(currencyItems.reduce((sum, item) => sum + (item.quantity/item.currency.exchange), 0))))
+        if (parseFloat(remaining.toFixed(2)) >= 0.01){
+            showNotification({message:"Queda saldo por restar.",type:"error"})
+            return
+        }
         for (const x of currencies){
             const r = parseFloat((remaining*x.exchange).toFixed(2))
             if (r > 0){
-                if (!confirm("Existe un remantente en: "+x.name+", de: " +r+"\n¿Desea Continuar?")){
+                if (!confirm("Existe un remantente en: "+x.name+" de: " +r+"\n¿Desea Continuar?")){
                     showNotification({message:"Agregue el valor total de la factura, queda remanente en: "+x.name,type:"error"})
                     return
                 }
@@ -114,18 +139,11 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         }
         setLoading(true)
         await onSave(orderData,{url:"/orders/update_currencies/"+initialData?.id});
-        await onSave({state:"completed"},{url:"/orders/update_order/"+initialData?.id});
+        await onSave({state:"completed",customer_id:customer.id},{url:"/orders/update_order/"+initialData?.id});
         setLoading(false)
     }
 
     const handleRemoveItem = (currencyID: number) => {
-        // if (initialData){
-        //     const itemDeleted = selectedItems.filter(item => item.dish.id == dishId)[0]
-        //     const isItemUpdate = items.find(i=>i.dish.id==itemDeleted.dish.id)
-        //     if (isItemUpdate){
-        //         isItemUpdate.quantity=0
-        //     }
-        // }
         setCurrencyItems(prevItems => prevItems.filter(item => item.currency.id !== currencyID));
     };
 
@@ -202,7 +220,12 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
         <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
             {/* Sección de Datos del Pedido (Número de Mesa) */}
             <h3 className="text-lg text-center sm:text-xl font-semibold text-gray-800 pb-2 mb-4">Datos del Pedido</h3>
-            
+            <SearchCustomer 
+                setCustomer={setCustomer}
+                customer={customer}
+                setLoading={setLoading}
+                isEditable={initialData?.customer_id ? true: false}
+            />
             <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mt-6 pb-2 mb-4">Platos del Pedido</h3>
             {/* Lista de Platos Seleccionados */}
             {items.length > 0 && (
@@ -255,7 +278,7 @@ const BillingForm: React.FC<OrderFormProps> = ({ onSave, onCancel, initialData }
                     <input
                         type="number"
                         id="currencyQuantity"
-                        value={currentCurrencyQuantityToAdd || ""}
+                        value={currentCurrencyQuantityToAdd}
                         step="0.1"
                         onChange={(e) => {setCurrentCurrencyQuantityToAdd(parseFloat(e.target.value))}}
                         min="0.00"

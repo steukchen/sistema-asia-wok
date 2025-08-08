@@ -19,6 +19,7 @@ interface OrderDetailsModalProps {
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order, orderCurrencies, onUpdateStatus,onEditOrder }) => {
     const {user} = useAuth()
     const pathname = usePathname()
+    const [customer,setCustomer] = useState<Customer | null>(null);
     const [valueCurrency,setValueCurrency] = useState(1)
     const [currencies,setCurrencies] = useState<Currency[] | null>(null)
     const {showNotification,closeNotification} = useNotification()
@@ -59,6 +60,23 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
         })
     },[])
+    useEffect(()=>{
+        if (order?.customer_id){
+            setLoading(true)
+            const paramsCustomer = new URLSearchParams({
+                url: `/customers/get_customer_by_id/`+order.customer_id
+            });
+            fetch(`/api/get?`+paramsCustomer, {
+                method: 'GET'
+            }).then(response=>response.json())
+            .then((data: Customer)=>{
+                setCustomer(data)
+                setLoading(false)
+            }).finally(()=>setLoading(false))
+        }else{
+            setCustomer(null)
+        }
+    },[order])
 
     if (!order) {
         return null;
@@ -66,11 +84,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     const total = order.dishes.map(d=>d.quantity*d.dish.price).reduce((t, v) => t + v, 0);
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <Modal isOpen={isOpen} onClose={onClose} title={`Detalles del Pedido #${order.id}`}>
             <p className="text-gray-700 text-lg sm:text-xl animate-pulse">
                 Cargando...
             </p>
-        </div>
+        </Modal>
     );
 
     return (
@@ -81,7 +99,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                     <div>
                         <p><strong className="font-semibold">Mesa:</strong> {order.table.name}</p>
                         <p><strong className="font-semibold">Fecha Pedido:</strong> {new Date(order.order_date).toLocaleString()}</p>
-                        {/* <p><strong className="font-semibold">Última Actualización:</strong> {new Date(order.fecha_actualizacion).toLocaleString()}</p> */}
                     </div>
                     <div>
                         <p>
@@ -90,6 +107,12 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 {order.state.replace(/_/g, ' ')}
                             </span>
                         </p>
+                        {customer &&(
+                            <>
+                                <p><strong className="font-semibold">Cedula Cliente: </strong>{customer.ci}</p>
+                                <p><strong className="font-semibold">Nombre Cliente: </strong>{customer.name+" "+customer.lastname}</p>
+                            </>
+                        )}
                     </div>
                     <div className='col-span-2'>
                         <p><strong className="font-semibold wrap-break-word">Notas:</strong><br />{order.notes?.split('\n').map((line, index) => (

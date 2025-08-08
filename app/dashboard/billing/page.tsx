@@ -9,7 +9,7 @@ import { useWebSocket } from "@/app/hooks/ws";
 import BillingTable from "@/app/components/ui/dashboard/billing/billingTable";
 import BillingForm from "@/app/components/ui/dashboard/billing/billingForm";
 
-export default function OrderSection() {
+export default function BillingSection() {
     const [showForm, setShowForm] = useState(false);
     const [orders, setOrders] = useState<Order[] | null>(null);
     const [editOrder, setEditOrder] = useState<Order | null>(null);
