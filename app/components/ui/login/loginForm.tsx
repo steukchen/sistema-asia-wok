@@ -90,7 +90,7 @@ export default function LoginForm() {
                     </div>
                 )}
                 {/* Botón de Iniciar Sesión*/}
-                <Button isLoading={loading}>Iniciar Sesión</Button>
+                <Button isLoading={loading} className="w-full">Iniciar Sesión</Button>
             </form>
         </div>
     );
