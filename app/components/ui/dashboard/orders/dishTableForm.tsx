@@ -6,6 +6,8 @@ interface DishTableFormProps{
     dishes: Dish[] | null;
     handleAddItem: ()=>void;
     setCurrentDishIdToAdd: (dishId:number)=>void;
+    setCurrentDishQuantityToAdd: (quantity: number)=>void;
+    currentDishQuantityToAdd: number
     currentDishIdToAdd: number;
 }
 
@@ -13,10 +15,11 @@ const DishTableForm = ({
     dishes,
     handleAddItem,
     setCurrentDishIdToAdd,
+    setCurrentDishQuantityToAdd,
+    currentDishQuantityToAdd,
     currentDishIdToAdd
 }:DishTableFormProps)=>{
     const [searchTerm,setSearchTerm] = useState("")
-    const [currentDishQuantityToAdd, setCurrentDishQuantityToAdd] = useState<number>(1);
     
     const filteredDishes = useMemo(() => {
         if (!searchTerm.trim()) return dishes?.slice(0, 5);
@@ -26,6 +29,11 @@ const DishTableForm = ({
             ?.filter(dish => dish.name.toLowerCase().includes(term))
             ?.slice(0, 5); 
     }, [dishes, searchTerm]);
+
+    const addItemSelected = async ()=>{
+        await setCurrentDishQuantityToAdd(1);
+        if (currentDishQuantityToAdd == 1) handleAddItem();
+    }
 
     return (
         <>
@@ -45,7 +53,41 @@ const DishTableForm = ({
                         />
                     </div>
                 </div>
-                <div className="w-full flex-1 sm:w-auto">
+            </div>
+            <div className="mt-6 border border-gray-200 rounded-md overflow-hidden shadow-sm overflow-x-auto"> 
+                <table className="min-w-full divide-y divide-gray-200 table-fixed select-none">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-2/5">Plato</th>
+                            <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Descripcion</th>
+                            <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Precio Unitario</th>
+                        </tr>
+                    </thead>
+                    {filteredDishes && (
+                    <tbody className="divide-y divide-gray-200">
+                        {filteredDishes.map((item) => (
+                            <tr 
+                                key={item.id} 
+                                onClick={()=>currentDishIdToAdd === item.id ? addItemSelected() : setCurrentDishIdToAdd(item.id)}
+                                className={`transition-colors hover:bg-gray-100 ${currentDishIdToAdd === item.id? 'bg-blue-100' : 'bg-white'} cursor-pointer select-none`}
+                            >
+                                <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</td>
+                                <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">
+                                    {item.description.split('\n').map((line, index) => (
+                                    <span key={index}>
+                                        {line}
+                                        <br />
+                                    </span>))}
+                                </td>
+                                <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.price.toFixed(2)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    )}
+                </table>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 items-end justify-end">
+                <div className="w-full sm:w-auto">
                     <label htmlFor="dishQuantity" className="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
                     <input
                         type="number"
@@ -64,40 +106,6 @@ const DishTableForm = ({
                     Añadir Plato
                 </Button>
             </div>
-            <div className="mt-6 border border-gray-200 rounded-md overflow-hidden shadow-sm overflow-x-auto"> 
-                <table className="min-w-full divide-y divide-gray-200 table-fixed">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-2/5">Plato</th>
-                            <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase w-1/5">Descripcion</th>
-                            <th className="px-4 py-2 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase">Precio Unitario</th>
-                        </tr>
-                    </thead>
-                    {filteredDishes && (
-                    <tbody className="divide-y divide-gray-200">
-                        {filteredDishes.map((item) => (
-                            <tr 
-                                key={item.id} 
-                                onClick={()=>setCurrentDishIdToAdd(item.id)}
-                                onDoubleClick={handleAddItem}
-                                className={`transition-colors hover:bg-gray-100 ${currentDishIdToAdd === item.id? 'bg-blue-100' : 'bg-white'} cursor-pointer select-none`}
-                            >
-                                <td className="px-4 py-2 text-sm sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</td>
-                                <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">
-                                    {item.description.split('\n').map((line, index) => (
-                                    <span key={index}>
-                                        {line}
-                                        <br />
-                                    </span>))}
-                                </td>
-                                <td className="px-4 py-2 text-sm sm:text-base text-gray-700 whitespace-nowrap">${item.price.toFixed(2)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    )}
-                </table>
-            </div>
-            
         </>
     );
 }

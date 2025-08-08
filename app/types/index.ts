@@ -71,6 +71,7 @@ interface OrderCreationFormData {
 interface OrderWithDishes {
     id: number;
     created_by: string;
+    customer_id?: number
     table: Table;
     state: OrderStatus;
     notes?: string;
@@ -120,10 +121,20 @@ interface OrderWithCurrencies {
     state: OrderStatus;
     notes?: string;
     order_date: string;
+    customer_id?: number
     currencies: OrderCurrencyItem[];
 }
 
 interface WebSocketMessage{
     type: string;
     message: string;
+}
+
+interface Customer{
+    id: number,
+    ci: string,
+    name: string,
+    lastname: string,
+    phone_number: string,
+    address: string
 }

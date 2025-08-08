@@ -53,6 +53,7 @@ export const useWebSocket = () => {
             setIsConnected(true);
             setError(null);
             reconnectAttempts.current = 0;
+            reconnectTimer.current = null
             // Enviar token inmediatamente después de abrir
 
             socket.send(wsToken);
@@ -77,6 +78,7 @@ export const useWebSocket = () => {
         };
 
         socket.onclose = (event) => {
+            console.log(reconnectAttempts.current)
             if (event.code === 1000) {
                 alert("Se ha detectado otra sesion")
                 logout()
@@ -93,16 +95,17 @@ export const useWebSocket = () => {
             if (isMounted.current && reconnectAttempts.current < 5) {
                 reconnectAttempts.current += 1;
                 
-                const delay = Math.min(
-                    3000 * Math.pow(2, reconnectAttempts.current - 1),
-                    30000 // Máximo 30 segundos
-                );
+                const delay = 4000;
+                // const delay = Math.min(
+                //     3000 * Math.pow(2, reconnectAttempts.current - 1),
+                //     30000 // Máximo 30 segundos
+                // );
                 
                 reconnectTimer.current = setTimeout(() => {
-                if (isMounted.current) {
-                    console.log(`Reconnecting attempt ${reconnectAttempts.current}...`);
-                    connect();
-                }
+                    if (isMounted.current) {
+                        console.log(`Reconnecting attempt ${reconnectAttempts.current}...`);
+                        connect();
+                    }
                 }, delay);
             } else {
                 setError('Max reconnect attempts reached');

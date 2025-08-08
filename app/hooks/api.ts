@@ -133,6 +133,9 @@ export function useApi<T extends ApiResource, C = Partial<T>>(config: ApiConfig<
                 if (response.status === 409) {
                     throw new Error(`Datos del ${config.resourceName} en uso.`);
                 }
+                if (response.status === 422) {
+                    throw new Error(`Datos para ${config.resourceName} no validos`);
+                }
 
                 if (!response.ok) {
                     throw new Error(`Error ${response.status}: ${await response.text()}`);
@@ -169,6 +172,10 @@ export function useApi<T extends ApiResource, C = Partial<T>>(config: ApiConfig<
                     throw new Error(`Conflicto al actualizar ${config.resourceName}`);
                 }
 
+                if (response.status === 422) {
+                    throw new Error(`Datos para ${config.resourceName} no validos`);
+                }
+
                 if (!response.ok) {
                     throw new Error(`Error ${response.status}: ${response.statusText}`);
                 }
@@ -180,6 +187,10 @@ export function useApi<T extends ApiResource, C = Partial<T>>(config: ApiConfig<
                 return updatedItem;
             } catch (error) {
                 handleError(error, `Error actualizando ${config.resourceName}`);
+                if (error instanceof Error){
+                    console.log(error.message)
+                    setState((prev) => ({ ...prev, error: error.message}));
+                }
                 return null;
             } finally {
                 setState((prev) => ({ ...prev, loading: false }));
