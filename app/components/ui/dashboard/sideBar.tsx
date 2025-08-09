@@ -5,7 +5,7 @@ import { useState } from "react";
 import { lusitana } from "@/app/components/fonts";
 import { usePathname } from "next/navigation";
 
-type Sections = "users" | "dishes" | "orders" | "settings" | "billing";
+type Sections = "users" | "dishes" | "orders" | "settings" | "billing" | "customers";
 
 interface SideBarProps {
     userRole: UserRole;
@@ -21,6 +21,7 @@ const SideBar: React.FC<SideBarProps> = ({ userRole }) => {
         },
         { name: "Gestion de Facturación", href: "billing", icon: "💸", roles: ["admin","cashier"] },
         { name: "Gestión de Platos", href: "dishes", icon: "🍽️", roles: ["admin", "cashier"] },
+        { name: "Gestión de Clientes", href: "customers", icon: "👨‍👩‍👧‍👦", roles: ["admin", "cashier"] },
         { name: "Gestión de Usuarios", href: "users", icon: "👤", roles: ["admin"] },
         { name: "Configuración Restaurante", href: "settings", icon: "⚙️", roles: ["admin"] },
     ];
