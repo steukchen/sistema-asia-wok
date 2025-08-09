@@ -19,7 +19,7 @@ const UserTable: React.FC<UserTableProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
-    const {user: u} = useAuth()
+    const { user: u } = useAuth()
 
     const filteredUsers = useMemo(() => {
         if (!searchTerm.trim()) return users;
@@ -134,8 +134,8 @@ const UserTable: React.FC<UserTableProps> = ({
                                         >
                                             Editar
                                         </Button>
-                                        {user.id!=u?.id && (<Button
-                                            onClick={() => onDelete({url:"/users/delete_user/"+user.id})}
+                                        {user.id != u?.id && (<Button
+                                            onClick={() => onDelete({ url: "/users/delete_user/" + user.id })}
                                             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-xs rounded-md"
                                             type="button"
                                         >
@@ -159,7 +159,7 @@ const UserTable: React.FC<UserTableProps> = ({
                                                 No se encontraron usuarios
                                             </p>
                                             <p className="mt-1">
-                                                No hay resultados para 
+                                                No hay resultados para
                                                 <span className="font-medium">{searchTerm}</span>
                                             </p>
                                             <button
@@ -200,12 +200,9 @@ const UserTable: React.FC<UserTableProps> = ({
                             >
                                 <Button
                                     onClick={handlePrevious}
-                                    disabled={currentPage === 1}
-                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                        currentPage === 1
-                                            ? "bg-orange-800 hover:bg-orange-800 hover:cursor-default"
-                                            : ""
-                                    }`}
+                                    disabled={currentPage === totalPages}
+                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === totalPages ? "bg-gray-200 hover:bg-gray-200 hover:cursor-not-allowed" : "bg-white hover:bg-gray-50"
+                                        }`}
                                     type="button"
                                 >
                                     Anterior
@@ -228,11 +225,10 @@ const UserTable: React.FC<UserTableProps> = ({
                                             <button
                                                 key={pageNum}
                                                 onClick={() => setCurrentPage(pageNum)}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                    currentPage === pageNum
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNum
                                                         ? "z-10 bg-indigo-600 text-white border-indigo-600"
                                                         : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                } mx-0.5`}
+                                                    } mx-0.5`}
                                             >
                                                 {pageNum}
                                             </button>
@@ -249,11 +245,8 @@ const UserTable: React.FC<UserTableProps> = ({
                                 <Button
                                     onClick={handleNext}
                                     disabled={currentPage === totalPages}
-                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                        currentPage === totalPages
-                                            ? "bg-orange-800 hover:bg-orange-800 hover:cursor-default"
-                                            : ""
-                                    }`}
+                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === totalPages ? "bg-gray-200 hover:bg-gray-200 hover:cursor-not-allowed" : "bg-white hover:bg-gray-50"
+                                        }`}
                                     type="button"
                                 >
                                     Siguiente

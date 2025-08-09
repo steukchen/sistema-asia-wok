@@ -138,3 +138,12 @@ interface Customer{
     phone_number: string,
     address: string
 }
+
+interface CustomerFormData {
+    id?: number,
+    ci: string,
+    name: string,
+    lastname: string,
+    phone_number: string,
+    address: string
+}
