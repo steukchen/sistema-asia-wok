@@ -212,8 +212,8 @@ const DishTable: React.FC<UserTableProps> = ({
                             >
                                 <Button
                                     onClick={handlePrevious}
-                                    disabled={currentPage === totalPages}
-                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === totalPages ? "bg-gray-200 hover:bg-gray-200 hover:cursor-not-allowed" : "bg-white hover:bg-gray-50"
+                                    disabled={currentPage === 1}
+                                    className={`relative inline-flex items-center px-4 py-2  text-sm font-medium ${currentPage === 1 ? "bg-gray-200 hover:bg-gray-200 hover:cursor-not-allowed text-gray-500" : "bg-white hover:bg-gray-50 text-gray-700"
                                         }`}
                                     type="button"
                                 >
@@ -257,7 +257,7 @@ const DishTable: React.FC<UserTableProps> = ({
                                 <Button
                                     onClick={handleNext}
                                     disabled={currentPage === totalPages}
-                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === totalPages ? "bg-gray-200 hover:bg-gray-200 hover:cursor-not-allowed" : "bg-white hover:bg-gray-50"
+                                    className={`relative inline-flex items-center px-4 py-2  text-sm font-medium ${currentPage === totalPages ? "text-gray-500 bg-gray-200 hover:bg-gray-200 hover:cursor-not-allowed" : "bg-white hover:bg-gray-50 text-gray-700"
                                         }`}
                                     type="button"
                                 >
