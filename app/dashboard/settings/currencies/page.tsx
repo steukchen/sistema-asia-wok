@@ -70,7 +70,7 @@ export default function CurrenciesPage() {
     };
 
     return (
-        <div className="bg-white text-gray-800 w-full overflow-hidden">
+        <div className="bg-white text-white w-full overflow-hidden">
             <HeadSection
                 loading={loading}
                 title="Gestión de Monedas"

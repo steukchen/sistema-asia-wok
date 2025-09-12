@@ -131,7 +131,8 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                         </Button>)}
 
                                         {/* BOTÓN DE ELIMINAR */}
-                                        {user?.rol == "admin" && (<Button
+                                        {user?.rol == "admin" && 
+                                        (<Button
                                             onClick={() => onDelete({url:"/orders/delete_order/"+order.id})}
                                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
                                             type="button"

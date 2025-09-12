@@ -8,6 +8,9 @@ import TableForm, { Table, TableState } from "@/app/components/ui/dashboard/tabl
 import TableTable from "@/app/components/ui/dashboard/tables/tableTable";
 import CurrencyForm from "@/app/components/ui/dashboard/currencies/currencyForm";
 import CurrencyTable from "@/app/components/ui/dashboard/currencies/currencyTable";
+import DishTypeForm from "@/app/components/ui/dashboard/dishes/dishTypeForm";
+import DishTypeTable from "@/app/components/ui/dashboard/dishes/dishTypeTable";
+import { GiMeal } from "react-icons/gi";
 import { FaChair, FaMoneyBillWave } from "react-icons/fa";
 
 export default function SettingsDashboard() {
@@ -106,6 +109,46 @@ export default function SettingsDashboard() {
         loadCurrencies("", { url: "/currencies/get_currencies" });
     };
 
+    const {
+        state: dishTypeState,
+        get: loadDishTypes,
+        create: createDishType,
+        update: updateDishType,
+        delete: deleteDishType,
+    } = useApi<DishType, DishType>({ resourceName: "Tipo de Plato" });
+
+    const [dishTypes, setDishTypes] = useState<DishType[]>([]);
+    const [showDishTypeModal, setShowDishTypeModal] = useState(false);
+    const [showDishTypeForm, setShowDishTypeForm] = useState(false);
+    const [editDishType, setEditDishType] = useState<DishType | null>(null);
+
+    useEffect(() => {
+        loadDishTypes("", { url: "/dishes_types/get_dishes_types" });
+    }, []);
+
+    useEffect(() => {
+        if (Array.isArray(dishTypeState.data)) {
+            setDishTypes(dishTypeState.data);
+        }
+    }, [dishTypeState.data]);
+
+    const handleSaveDishType = async (data: DishType, params: Record<string, string>) => {
+        const action = editDishType ? updateDishType : createDishType;
+        const result = await action(data, params);
+        if (result) {
+            setShowDishTypeForm(false);
+            setEditDishType(null);
+            loadDishTypes("", { url: "/dishes_types/get_dishes_types" });
+        }
+    };
+
+    const handleDeleteDishType = async (id: number) => {
+        if (!confirm("¿Estás seguro de eliminar este tipo de plato?")) return;
+        await deleteDishType({ url: `/dishes_types/delete_dish_type/${id}` });
+        loadDishTypes("", { url: "/dishes_types/get_dishes_types" });
+    };
+
+
     return (
         <div className="p-6 space-y-8">
             <HeadSection title="Ajustes del Restaurante" loading={false} error={null} />
@@ -130,6 +173,16 @@ export default function SettingsDashboard() {
                     <p className="text-sm text-gray-600">Crea, edita o elimina monedas.</p>
                 </div>
             </div>
+
+            <div
+                onClick={() => setShowDishTypeModal(true)}
+                className="cursor-pointer bg-white border rounded-lg shadow hover:shadow-md p-6 flex flex-col items-center justify-center text-center transition"
+            >
+                <GiMeal className="text-4xl text-orange-600 mb-3" />
+                <h3 className="text-lg font-semibold text-gray-700 mb-1">Gestionar Tipos de Platos</h3>
+                <p className="text-sm text-gray-600">Crea, edita o elimina categorías de platos.</p>
+            </div>
+
 
             {/* Modal de Mesas */}
             <Modal
@@ -229,6 +282,56 @@ export default function SettingsDashboard() {
                     )}
                 </div>
             </Modal>
+
+            {/* Modal de Tipos de Platos */}
+            <Modal
+                isOpen={showDishTypeModal}
+                onClose={() => {
+                    setShowDishTypeModal(false);
+                    setShowDishTypeForm(false);
+                    setEditDishType(null);
+                }}
+                title="Gestión de Tipos de Platos"
+            >
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <button
+                            onClick={() => {
+                                setEditDishType(null);
+                                setShowDishTypeForm(true);
+                            }}
+                            className="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                        >
+                            Crear Tipo
+                        </button>
+                        {dishTypeState.error && <p className="text-red-500">{dishTypeState.error}</p>}
+                    </div>
+
+                    {!showDishTypeForm && (
+                        <DishTypeTable
+                            items={dishTypes}
+                            onEdit={(type) => {
+                                setEditDishType(type);
+                                setShowDishTypeForm(true);
+                            }}
+                            onDelete={(params) => handleDeleteDishType(Number(params.url?.split("/").pop()))}
+                        />
+                    )}
+
+                    {showDishTypeForm && (
+                        <DishTypeForm
+                            initialData={editDishType}
+                            onSave={handleSaveDishType}
+                            onCancel={() => {
+                                setShowDishTypeForm(false);
+                                setEditDishType(null);
+                            }}
+                            isLoading={dishTypeState.loading}
+                        />
+                    )}
+                </div>
+            </Modal>
+
         </div>
     );
 }

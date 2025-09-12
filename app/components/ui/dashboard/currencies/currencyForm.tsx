@@ -110,10 +110,10 @@ export const CurrencyForm: React.FC<CurrencyFormProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2">
-                <Button type="button" onClick={onCancel} className="bg-red-500">
+                <Button type="button" onClick={onCancel} className="bg-red-500 text-white">
                     Cancelar
                 </Button>
-                <Button type="submit" className="bg-blue-600">
+                <Button type="submit" className="bg-blue-600 text-white">
                     {initialData ? "Actualizar Moneda" : "Crear Moneda"}
                 </Button>
             </div>
