@@ -126,7 +126,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 </div>
 
                 {/* Actualizar Estado del Pedido */}
-                {user?.rol == "admin" && !pathname.includes("/billing") && (<div className="mt-4">
+                {user?.rol == "admin" && !pathname.includes("/billing") && !pathname.includes("/invoices") && (<div className="mt-4">
                     <label htmlFor="order-status" className="block text-sm font-medium text-gray-700 mb-1">Actualizar Estado:</label>
                     <div className="flex items-center space-x-2">
                         <select
@@ -223,7 +223,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
             {/* Botones de acción */}
             <div className="mt-6 flex justify-end space-x-3">
                 {/* Botón de Modificar */}
-                {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && !pathname.includes("/billing") && (
+                {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && !pathname.includes("/billing") && !pathname.includes("/invoices") && (
                     <Button
                         onClick={()=>onEditOrder(order)}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out"
@@ -244,7 +244,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
                 {/* Botón de cerrar el modal */}
 
-                {pathname.includes("/billing")&& customer && orderCurrencies && (
+                {(pathname.includes("/billing") || pathname.includes("/invoices")) && customer && orderCurrencies && (
                     <Button
                         onClick={() => generatePDF({customer:customer,order:order,currencies:orderCurrencies.currencies,dishes:order.dishes})}
                         className={` bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm transition-all duration-200 ease-in-out`}

@@ -1,5 +1,5 @@
 'use client';
-import React, { use } from 'react';
+import React from 'react';
 import Button from '../../button';
 import { useAuth } from '@/app/providers/authProvider';
 
@@ -7,8 +7,8 @@ interface OrderTableProps {
     items: Order[]; 
     onViewDetails: (order: Order) => void; 
     onUpdateStatus: (orderId: number, newStatus: OrderStatus) => void; 
-    onDelete: (params: Record<string,string>) => void; 
-    onEditOrder: (order: Order) => void; 
+    onDelete?: (params: Record<string,string>) => void; 
+    onEditOrder?: (order: Order) => void; 
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, onUpdateStatus, onDelete, onEditOrder }) => {
@@ -122,7 +122,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                         </Button>
 
                                         {/* BOTÓN DE MODIFICAR */}
-                                        {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && (<Button
+                                        {user?.rol!="chef" && (order.state!="made" || user?.rol!="waiter") && onEditOrder && (<Button
                                             onClick={() => onEditOrder(order)}
                                             className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
                                             type="button"
@@ -131,7 +131,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ items: orders, onViewDetails, o
                                         </Button>)}
 
                                         {/* BOTÓN DE ELIMINAR */}
-                                        {user?.rol == "admin" && 
+                                        {user?.rol == "admin" && onDelete && 
                                         (<Button
                                             onClick={() => onDelete({url:"/orders/delete_order/"+order.id})}
                                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md w-full sm:w-auto shadow-sm transition-all duration-200 ease-in-out"
