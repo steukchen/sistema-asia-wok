@@ -7,10 +7,24 @@ import Button from "@/app/components/ui/button"
 import OrderTable from "@/app/components/ui/dashboard/orders/orderTable";
 import OrderDetailsModal from "@/app/components/ui/dashboard/orders/orderDetailsModal";
 
+function getMonthStartEnd() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const start = new Date(year, month, 1);
+    const end = new Date(year, month + 1, 1);
+    // Formato YYYY-MM-DD
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const startStr = `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
+    const endStr = `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`;
+    return { startStr, endStr };
+}
+
 export default function InvoicesActivityPage() {
+    const { startStr, endStr } = getMonthStartEnd();
     const [orders, setOrders] = useState<Order[] | null>(null);
-    const [from, setFrom] = useState<string>("");
-    const [to, setTo] = useState<string>("");
+    const [from, setFrom] = useState<string>(startStr);
+    const [to, setTo] = useState<string>(endStr);
     const [nationality, setNationality] = useState<string>("V");
     const [ci, setCi] = useState<string>("");
     const [orderState, setOrderState] = useState<OrderStatus>("completed");
@@ -50,8 +64,13 @@ export default function InvoicesActivityPage() {
         }
     }, [data])
 
-    const handleFilter = (e: React.FormEvent) => {
-        e.preventDefault();
+    useEffect(() => {
+        handleFilter();
+        // eslint-disable-next-line
+    }, []);
+
+    const handleFilter = (e?: React.FormEvent) => {
+        e?.preventDefault();
         setOrders(null);
 
         const isValidDate = (date: string) => /^\d{4}-\d{2}-\d{2}$/.test(date);
