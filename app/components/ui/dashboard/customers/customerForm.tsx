@@ -130,7 +130,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
         try {
             await onSave(payload, { url });
-        } catch (err: any) {
+        } catch (err) {
             showNotification({ message: 'No se pudo guardar el cliente.', type: 'error' });
         } finally {
             setLoading(false);
